@@ -1,0 +1,367 @@
+@import "tailwindcss";
+
+/* ---------------------------------------------------------------------------
+   Mina Ioniță — design tokens
+   Direction: light editorial + gold, derived from the calligraphic "Mi" logo.
+
+   Contrast is the constraint that shaped this palette. Brand gold #A8823C on
+   cream measures 3.37:1 — fine for large graphics (logo, rules, borders) but
+   below AA for text. Gold text therefore uses --color-gold-text (4.77:1), and
+   the primary button puts ink ON gold (5.21:1) rather than cream on gold.
+--------------------------------------------------------------------------- */
+
+@theme {
+  /* Surfaces */
+  --color-cream: #fbf9f5;
+  --color-cream-sunk: #f4f0e8;
+  --color-ink: #14140f;
+  --color-ink-soft: #1e1e18;
+
+  /* Gold ramp */
+  --color-gold: #a8823c; /* brand / decorative only — NOT text */
+  --color-gold-text: #8a6a2f; /* 4.77:1 on cream — accent text */
+  --color-gold-deep: #6b5220; /* 7.00:1 on cream — emphasis text */
+  --color-gold-light: #c9a24e; /* on dark surfaces */
+  --color-gold-glow: #f0d9a0; /* on dark surfaces */
+
+  /* Text */
+  --color-muted: #5c5648; /* 6.93:1 on cream */
+  --color-muted-strong: #4a4436;
+
+  /* Lines */
+  --color-rule: #e5ddcd;
+  --color-rule-strong: #d3c7ac;
+
+  /* Feedback */
+  --color-danger: #a32d22;
+  --color-success: #2f6b3f;
+
+  /* Type */
+  --font-display: var(--font-cormorant), "Cormorant Garamond", Georgia, serif;
+  --font-sans: var(--font-inter), Inter, system-ui, -apple-system, sans-serif;
+
+  /* Editorial type scale.
+     Cormorant Garamond has a small x-height and fine strokes, so display sizes
+     run larger and tracking stays near-neutral — tightening it the way you
+     would a grotesk collapses the thin joins. */
+  --text-hero: clamp(1.95rem, 1.35rem + 2.6vw, 3.5rem);
+  --text-hero--line-height: 1.1;
+  --text-hero--letter-spacing: -0.02em;
+  --text-display: clamp(2rem, 3.4vw, 2.9rem);
+  --text-display--line-height: 1.12;
+  --text-display--letter-spacing: -0.02em;
+  --text-title: clamp(1.5rem, 2.2vw, 1.9rem);
+  --text-title--line-height: 1.25;
+  --text-lead: clamp(0.9375rem, 1.05vw, 1.0625rem);
+  --text-lead--line-height: 1.65;
+  --text-eyebrow: 0.75rem;
+  --text-eyebrow--line-height: 1.4;
+  --text-eyebrow--letter-spacing: 0.18em;
+
+  /* Motion — 150-300ms per UX rules; one shared rhythm */
+  --ease-out-soft: cubic-bezier(0.22, 1, 0.36, 1);
+  /* Luxury reveal curve: fast start, long decelerating settle (poise, not
+     bounce). Used by the scroll-reveal + hero line-mask layer. */
+  --ease-lux: cubic-bezier(0.16, 1, 0.3, 1);
+
+  /* Warm, soft shadow. Tinted toward ink/brown — a cool/black shadow on cream
+     reads cheap instantly. Reserved for the one element that must lift. */
+  --shadow-soft: 0 2px 8px rgba(20, 20, 15, 0.04),
+    0 24px 48px -16px rgba(30, 22, 10, 0.14);
+}
+
+:root {
+  color-scheme: light;
+}
+
+body {
+  background: var(--color-cream);
+  color: var(--color-ink);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+/* Cormorant's 400 reads as hairline at heading sizes — 600 is the working
+   default for display type. */
+.font-display {
+  font-weight: 600;
+}
+
+/* Keyboard focus must stay visible everywhere (a11y rule: focus-states) */
+:focus-visible {
+  outline: 2px solid var(--color-gold-deep);
+  outline-offset: 3px;
+  border-radius: 2px;
+}
+
+::selection {
+  background: var(--color-gold);
+  color: var(--color-ink);
+}
+
+/* Stats, prices, phone numbers.
+   lining-nums is not optional here: Cormorant defaults to oldstyle figures,
+   which renders "80+" with an x-height zero (reads as "8o+") and drops the 3 in
+   "+38%" below the baseline. tabular-nums keeps columns from jittering. */
+.tabular {
+  font-variant-numeric: lining-nums tabular-nums;
+}
+
+/* Legal / long-form prose: readable defaults so these pages need no per-tag
+   classes in the markup. */
+.legal-prose {
+  color: var(--color-muted);
+  line-height: 1.7;
+  font-size: 0.9375rem;
+}
+.legal-prose h2 {
+  color: var(--color-ink);
+  font-family: var(--font-display);
+  font-size: var(--text-title);
+  margin-top: 2.5rem;
+  margin-bottom: 0.75rem;
+}
+.legal-prose p {
+  margin-top: 1rem;
+}
+.legal-prose ul {
+  margin-top: 1rem;
+  padding-left: 1.25rem;
+  list-style: disc;
+}
+.legal-prose li {
+  margin-top: 0.4rem;
+}
+.legal-prose a {
+  color: var(--color-gold-deep);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.legal-prose strong {
+  color: var(--color-ink);
+  font-weight: 600;
+}
+
+/* Hero monogram. The logo PNG is the mask, so a gold highlight sweeping the
+   gradient behind it travels along the script's actual strokes — a foil glint
+   rather than a box sliding over the art. Raster can't be stroke-drawn; this is
+   the closest thing that still reads as handwriting. */
+@keyframes mark-sheen {
+  from {
+    background-position: 180% 0;
+  }
+  to {
+    background-position: -80% 0;
+  }
+}
+
+.hero-mark {
+  -webkit-mask-image: url("/brand/logo-mi-ink.png");
+  mask-image: url("/brand/logo-mi-ink.png");
+  -webkit-mask-size: contain;
+  mask-size: contain;
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+  background-image: linear-gradient(
+    100deg,
+    var(--color-ink) 0%,
+    var(--color-ink) 38%,
+    var(--color-gold) 50%,
+    var(--color-ink) 62%,
+    var(--color-ink) 100%
+  );
+  background-size: 260% 100%;
+  animation: mark-sheen 9s cubic-bezier(0.6, 0, 0.4, 1) infinite;
+}
+
+/* Same mask trick over the dark video plate — the sheen has to travel in gold
+   over cream here, since ink on ink would be invisible. */
+.hero-mark--dark {
+  background-image: linear-gradient(
+    100deg,
+    var(--color-cream) 0%,
+    var(--color-cream) 38%,
+    var(--color-gold-glow) 50%,
+    var(--color-cream) 62%,
+    var(--color-cream) 100%
+  );
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-mark {
+    animation: none !important;
+    background-image: none;
+    background-color: var(--color-ink);
+  }
+
+  .hero-mark--dark {
+    background-color: var(--color-cream);
+  }
+}
+
+/* Tech marquee. The track holds the list twice and travels exactly -50%, so it
+   loops on an identical frame. transform only — no layout work per frame. */
+@keyframes marquee-scroll {
+  from {
+    transform: translate3d(0, 0, 0);
+  }
+  to {
+    transform: translate3d(-50%, 0, 0);
+  }
+}
+
+.marquee-track {
+  animation: marquee-scroll 45s linear infinite;
+  width: max-content;
+}
+
+.marquee-mask:hover .marquee-track {
+  animation-play-state: paused;
+}
+
+.marquee-mask {
+  -webkit-mask-image: linear-gradient(
+    to right,
+    transparent,
+    black 8%,
+    black 92%,
+    transparent
+  );
+  mask-image: linear-gradient(
+    to right,
+    transparent,
+    black 8%,
+    black 92%,
+    transparent
+  );
+}
+
+@media (prefers-reduced-motion: reduce) {
+  /* The blanket rule below would collapse the marquee to a 0.01ms loop that
+     re-runs forever. Stop it outright and park it at the start instead. */
+  .marquee-track {
+    animation: none !important;
+    transform: none !important;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* ---------------------------------------------------------------------------
+   Craft layer — the invisible details that separate "nice" from "divine":
+   film grain, a choreographed hero arrival, refined scrollbar.
+--------------------------------------------------------------------------- */
+
+/* Film grain. Turns flat digital cream into printed-paper warmth. Fixed so it
+   sits still while content scrolls; ~3.5% opacity — any more looks dirty. The
+   noise is an inline SVG data-URI, so it costs no request. */
+.grain-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  pointer-events: none;
+  opacity: 0.04;
+  mix-blend-mode: multiply;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.82' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+@media (prefers-reduced-motion: reduce) {
+  /* keep grain — it's static texture, not motion */
+}
+
+/* Hero arrival. Each headline line rides up out of an overflow-clip; supporting
+   items fade-rise in a stagger. Pure CSS, runs once on load — the page doesn't
+   just appear, it arrives. */
+@keyframes line-rise {
+  from {
+    transform: translateY(115%);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+@keyframes intro-rise {
+  from {
+    opacity: 0;
+    transform: translateY(1.15rem);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.line-mask {
+  display: block;
+  overflow: hidden;
+  padding-bottom: 0.08em; /* room for descenders/italic tails inside the clip */
+}
+.line-mask > span {
+  display: block;
+  transform: translateY(115%);
+  animation: line-rise 0.95s var(--ease-lux) forwards;
+  animation-delay: calc(var(--i, 0) * 0.09s + 0.12s);
+}
+
+.intro-item {
+  opacity: 0;
+  animation: intro-rise 0.85s var(--ease-lux) forwards;
+  animation-delay: calc(var(--i, 0) * 0.09s + 0.3s);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .line-mask > span,
+  .intro-item {
+    animation: none;
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* Refined scrollbar — a warm hairline, not the default grey slab. */
+@supports selector(::-webkit-scrollbar) {
+  ::-webkit-scrollbar {
+    width: 11px;
+    height: 11px;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: var(--color-rule-strong);
+    border: 3px solid var(--color-cream);
+    border-radius: 999px;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: var(--color-gold);
+  }
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+}
+
+/* The floating call/WhatsApp dock and the cookie bar both live in the
+   bottom-right corner. While the bar is up the dock steps above it — driven by a
+   class on <html> so the dock component stays unaware of consent state. */
+.contact-dock {
+  transition: bottom 220ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+.consent-bar-open .contact-dock {
+  bottom: 10.5rem;
+}
+@media (min-width: 640px) {
+  .consent-bar-open .contact-dock {
+    bottom: 8.5rem;
+  }
+}
+@media (min-width: 1024px) {
+  .consent-bar-open .contact-dock {
+    bottom: 7.5rem;
+  }
+}

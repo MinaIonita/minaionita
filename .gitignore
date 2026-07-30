@@ -1,0 +1,29 @@
+node_modules/
+.next/
+dist/
+build/
+out/
+
+# Secrets — the AES key and DB credentials must never be committed (brief §7)
+.env
+.env.*
+!.env.example
+db-setup.sql
+
+# Local database. It holds the admin password hash, real leads and the consent
+# log (with IPs) — committing it would publish every one of those.
+*.db
+*.db-journal
+*.db-wal
+*.db-shm
+
+# Generated PDFs / uploads
+uploads/
+
+*.log
+.DS_Store
+.turbo/
+coverage/
+
+# Build caches
+*.tsbuildinfo

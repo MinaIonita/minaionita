@@ -1,0 +1,494 @@
+// Mina Ioniță — admin data model (brief §4, §5, §5bis, §5ter)
+// MySQL is a firm requirement: every application entity lives in the database,
+// nothing critical in files.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+// Prisma 7 moved the connection URL out of the schema — it lives in
+// prisma.config.ts for migrate/introspect, and reaches the client via adapter.
+datasource db {
+  provider = "sqlite"
+}
+
+enum Locale {
+  RO
+  EN
+}
+
+// ---------------------------------------------------------------------------
+// Admin & auth (brief §4: email login, mandatory 2FA, sessions logged in MySQL)
+// ---------------------------------------------------------------------------
+
+enum AdminRole {
+  ADMIN
+  EDITOR
+}
+
+model AdminUser {
+  id           String    @id @default(cuid())
+  email        String    @unique
+  name         String
+  passwordHash String
+  role         AdminRole @default(EDITOR)
+
+  // 2FA is mandatory on admin (brief §7). Secret is encrypted at rest.
+  totpSecretEnc String?
+  totpEnabledAt DateTime?
+
+  sessions  AdminSession[]
+  accessLog AccessLog[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model AdminSession {
+  id        String   @id @default(cuid())
+  userId    String
+  user      AdminUser @relation(fields: [userId], references: [id], onDelete: Cascade)
+  tokenHash String   @unique
+  ip        String?
+  userAgent String?
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+}
+
+/// Audit trail for reads of sensitive data (brief §7: jurnalizare accese).
+model AccessLog {
+  id       String   @id @default(cuid())
+  userId   String?
+  user     AdminUser? @relation(fields: [userId], references: [id], onDelete: SetNull)
+  action   String
+  entity   String
+  entityId String?
+  ip       String?
+  at       DateTime @default(now())
+
+  @@index([entity, entityId])
+  @@index([at])
+}
+
+// ---------------------------------------------------------------------------
+// Public content
+// ---------------------------------------------------------------------------
+
+/// SEO fields required per page by the 18-point checklist (brief §6bis).
+model SeoMeta {
+  id              String  @id @default(cuid())
+  title           String
+  description     String
+  canonical       String?
+  ogImage         String?
+  noindex         Boolean @default(false)
+  primaryKeyword  String?
+  /// Score from the publish-time SEO validator (brief §5quater.3).
+  validatorScore  Int?
+
+  page            Page?
+  service         Service?
+  post            Post?
+  portfolioItem   PortfolioItem?
+  personalProject PersonalProject?
+}
+
+model Page {
+  id     String @id @default(cuid())
+  slug   String
+  locale Locale @default(RO)
+  title  String
+  /// Modular content blocks (brief §4).
+  blocks Json
+
+  seoId String? @unique
+  seo   SeoMeta? @relation(fields: [seoId], references: [id])
+
+  status      Status    @default(DRAFT)
+  publishedAt DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@unique([slug, locale])
+}
+
+enum Status {
+  DRAFT
+  IN_REVIEW
+  SCHEDULED
+  PUBLISHED
+  ARCHIVED
+}
+
+model Service {
+  id       String @id @default(cuid())
+  slug     String
+  locale   Locale @default(RO)
+  title    String
+  summary  String
+  body     Json
+  /// "de la X €" — optional, activatable per service (brief §3.2).
+  priceFrom Int?
+  priceCurrency String?
+  featured Boolean @default(false)
+  order    Int     @default(0)
+
+  faqs FaqItem[]
+
+  seoId String?  @unique
+  seo   SeoMeta? @relation(fields: [seoId], references: [id])
+
+  status      Status    @default(DRAFT)
+  publishedAt DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  leads Lead[]
+
+  @@unique([slug, locale])
+}
+
+/// Rendered as schema.org FAQPage (brief §3.2).
+model FaqItem {
+  id        String  @id @default(cuid())
+  question  String
+  answer    String
+  order     Int     @default(0)
+  serviceId String
+  service   Service @relation(fields: [serviceId], references: [id], onDelete: Cascade)
+
+  @@index([serviceId])
+}
+
+model PortfolioItem {
+  id        String @id @default(cuid())
+  slug      String
+  locale    Locale @default(RO)
+  client    String
+  industry  String?
+  challenge String?
+  solution  String?
+  /// Front-facing project shape: icon, tagline, year, description (brief §3.3).
+  body        Json?
+  /// Headline number, e.g. "+38%" / "rată de conversie".
+  metric      String?
+  metricLabel String?
+  liveUrl     String?
+  tech        Json?
+  gallery     Json?
+  category    String
+  featured    Boolean @default(false)
+  order       Int     @default(0)
+
+  seoId String?  @unique
+  seo   SeoMeta? @relation(fields: [seoId], references: [id])
+
+  status      Status    @default(DRAFT)
+  publishedAt DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@unique([slug, locale])
+  @@index([category])
+}
+
+/// Separate CPT from client portfolio (brief §3.4).
+model PersonalProject {
+  id       String @id @default(cuid())
+  slug     String
+  locale   Locale @default(RO)
+  title    String
+  idea     String
+  learned  String
+  tech     Json?
+  demoUrl  String?
+  /// în lucru / lansat / arhivat
+  projectStatus String
+
+  seoId String?  @unique
+  seo   SeoMeta? @relation(fields: [seoId], references: [id])
+
+  status      Status    @default(DRAFT)
+  publishedAt DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@unique([slug, locale])
+}
+
+model Testimonial {
+  id       String  @id @default(cuid())
+  locale   Locale  @default(RO)
+  quote    String
+  author   String
+  role     String?
+  avatar   String?
+  featured Boolean @default(false)
+  order    Int     @default(0)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Post {
+  id      String @id @default(cuid())
+  slug    String
+  locale  Locale @default(RO)
+  title   String
+  excerpt String
+  body    Json
+  cover   String?
+  tags    Json?
+
+  seoId String?  @unique
+  seo   SeoMeta? @relation(fields: [seoId], references: [id])
+
+  status      Status    @default(DRAFT)
+  publishedAt DateTime?
+  /// Real dateModified for schema.org Article (brief §6bis.5).
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@unique([slug, locale])
+}
+
+// ---------------------------------------------------------------------------
+// Leads & tickets (brief §5ter)
+// ---------------------------------------------------------------------------
+
+enum TicketStatus {
+  NEW
+  IN_PROGRESS
+  REPLIED
+  QUOTED
+  WON
+  LOST
+  CLOSED
+}
+
+/// Every form submission becomes a ticket, with full attribution.
+model Lead {
+  id      String  @id @default(cuid())
+  name    String
+  email   String
+  phone   String?
+  message String?
+  budget  String?
+
+  serviceId String?
+  service   Service? @relation(fields: [serviceId], references: [id], onDelete: SetNull)
+
+  // Attribution — closes the loop with the SEO/LP strategy (brief §5ter).
+  utmSource   String?
+  utmMedium   String?
+  utmCampaign String?
+  utmTerm     String?
+  utmContent  String?
+  landingPage String?
+  referrer    String?
+  ip          String?
+  userAgent   String?
+
+  status   TicketStatus @default(NEW)
+  messages TicketMessage[]
+
+  clientProjectId String?
+  clientProject   ClientProject? @relation(fields: [clientProjectId], references: [id], onDelete: SetNull)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([status])
+  @@index([createdAt])
+  @@index([utmSource])
+}
+
+enum MessageDirection {
+  INBOUND
+  OUTBOUND
+}
+
+/// Thread kept in admin; inbound replies land back here via webhook/IMAP.
+model TicketMessage {
+  id          String           @id @default(cuid())
+  leadId      String
+  lead        Lead             @relation(fields: [leadId], references: [id], onDelete: Cascade)
+  direction   MessageDirection
+  body        String
+  attachments Json?
+  /// Provider message id, used to thread inbound replies.
+  externalId  String?          @unique
+  createdAt   DateTime         @default(now())
+
+  @@index([leadId])
+}
+
+// ---------------------------------------------------------------------------
+// Private: client projects & credential vault (brief §5)
+// ---------------------------------------------------------------------------
+
+enum ProjectStage {
+  QUOTED
+  IN_PROGRESS
+  LIVE
+  MAINTENANCE
+  CLOSED
+}
+
+model ClientProject {
+  id          String @id @default(cuid())
+  clientName  String
+  companyName String?
+  contactEmail String?
+  contactPhone String?
+
+  domain          String?
+  registrar       String?
+  domainExpiresAt DateTime?
+  hostingProvider String?
+  hostingPlan     String?
+  hostingExpiresAt DateTime?
+  sslExpiresAt    DateTime?
+  siteUrl         String?
+  adminUrl        String?
+
+  stage         ProjectStage @default(QUOTED)
+  startedAt     DateTime?
+  deliveredAt   DateTime?
+  contractValue Decimal?
+  currency      String?
+  notes         String?
+
+  credentials Credential[]
+  contracts   Contract[]
+  leads       Lead[]
+  incidents   Incident[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+/// Unlimited repeater of credentials per project (brief §5).
+/// The secret is AES-256 encrypted at the application layer; the key lives in
+/// an env var, never in the database.
+model Credential {
+  id        String @id @default(cuid())
+  projectId String
+  project   ClientProject @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  label       String
+  username    String?
+  /// AES-256-GCM payload (iv.tag.ciphertext) from crypto.util — self-contained,
+  /// so no separate nonce column is needed.
+  passwordEnc String
+  loginUrl    String?
+  note        String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([projectId])
+}
+
+/// Uptime / expiry monitoring per client site (brief §5quater.2).
+model Incident {
+  id         String    @id @default(cuid())
+  projectId  String
+  project    ClientProject @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  kind       String
+  detail     String?
+  startedAt  DateTime  @default(now())
+  resolvedAt DateTime?
+
+  @@index([projectId])
+}
+
+// ---------------------------------------------------------------------------
+// Contracts (brief §5bis)
+// ---------------------------------------------------------------------------
+
+enum PartyType {
+  INDIVIDUAL
+  COMPANY
+}
+
+model Contract {
+  id     String @id @default(cuid())
+  /// Auto-numbered, e.g. CTR-2026-014.
+  number String @unique
+
+  projectId String?
+  project   ClientProject? @relation(fields: [projectId], references: [id], onDelete: SetNull)
+
+  serviceTemplate String
+  partyType       PartyType
+
+  // Beneficiary — company fields autofilled from the ANAF v9 API by CUI.
+  partyName          String
+  partyCui           String?
+  partyRegCom        String?
+  partyAddress       String?
+  partyRepresentative String?
+  partyVatPayer      Boolean?
+  /// ANAF "inactiv fiscal" flag — surfaced as a risk warning before generating.
+  partyFiscallyInactive Boolean?
+  anafCheckedAt      DateTime?
+
+  amount        Decimal
+  currency      String
+  advancePct    Int?
+  paymentTermDays Int?
+  penaltyPct    Decimal?
+  deliveryTerm  String?
+
+  /// Generated PDF, stored encrypted.
+  pdfPath      String?
+  pdfNonce     String?
+  annexes      ContractAnnex[]
+
+  signedAt  DateTime?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  @@index([projectId])
+}
+
+model ContractAnnex {
+  id         String   @id @default(cuid())
+  contractId String
+  contract   Contract @relation(fields: [contractId], references: [id], onDelete: Cascade)
+  title      String
+  body       Json
+  order      Int      @default(0)
+
+  @@index([contractId])
+}
+
+// ---------------------------------------------------------------------------
+// Settings, tracking & consent (brief §5ter)
+// ---------------------------------------------------------------------------
+
+/// Global key/value settings: menus, footer, contact details, tracking IDs.
+model Setting {
+  key       String   @id
+  value     Json
+  updatedAt DateTime @updatedAt
+}
+
+/// Consent log kept as compliance evidence (brief §5ter).
+model ConsentLog {
+  id         String   @id @default(cuid())
+  /// Anonymous visitor id from the cookie banner.
+  visitorId  String
+  necessary  Boolean  @default(true)
+  analytics  Boolean  @default(false)
+  marketing  Boolean  @default(false)
+  ip         String?
+  userAgent  String?
+  at         DateTime @default(now())
+
+  @@index([visitorId])
+  @@index([at])
+}
