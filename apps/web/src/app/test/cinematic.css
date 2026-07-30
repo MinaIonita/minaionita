@@ -1,0 +1,316 @@
+/* ---------------------------------------------------------------------------
+   Cinematic test page — scroll-driven motion layer.
+
+   Everything here runs on scroll-driven CSS animations (`animation-timeline`)
+   where the browser supports them. That matters: a scroll listener recalculating
+   parallax in JS does its work on the main thread, competing with exactly the
+   input handling that INP measures. Scroll-driven CSS runs off-main-thread, so
+   a page this heavy still stays responsive under the finger.
+
+   Browsers without support (Firefox today) get the JS fallback in
+   use-scroll-reveal.ts: elements simply reveal on entry, no parallax. The story
+   reads the same, it just doesn't move as much.
+
+   Only transform and opacity are animated. Nothing here can cause layout or CLS.
+--------------------------------------------------------------------------- */
+
+.cine {
+  /* The page owns its own scroll rhythm; sections are viewport-scale. */
+  --cine-ease: cubic-bezier(0.16, 1, 0.3, 1);
+  background: var(--color-ink);
+  color: var(--color-cream);
+}
+
+/* ── Signature: the monogram writes itself ──────────────────────────────────
+   The brand mark only exists as a raster, so there are no paths to stroke.
+   Instead the PNG becomes a mask and a solid block wipes across underneath —
+   through a cursive "Mi" that reads left to right, a wipe is indistinguishable
+   from a pen stroke, and it costs one composited transform instead of an SVG
+   path animation. */
+.cine-signature {
+  -webkit-mask-image: url("/brand/logo-mi-cream.png");
+  mask-image: url("/brand/logo-mi-cream.png");
+  -webkit-mask-size: contain;
+  mask-size: contain;
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+  -webkit-mask-position: center;
+  mask-position: center;
+  aspect-ratio: 1104 / 425;
+}
+
+.cine-signature__ink {
+  height: 100%;
+  width: 100%;
+  transform-origin: left center;
+  background: linear-gradient(
+    100deg,
+    var(--color-gold-light) 0%,
+    var(--color-gold-glow) 45%,
+    var(--color-cream) 100%
+  );
+  animation: cine-write 2.4s var(--cine-ease) 0.3s both;
+}
+
+@keyframes cine-write {
+  from {
+    transform: scaleX(0);
+  }
+  to {
+    transform: scaleX(1);
+  }
+}
+
+/* ── Reveal primitives ──────────────────────────────────────────────────────
+   `.cine-reveal` is the JS-driven fallback: the hook adds `is-in` on entry.
+   Where scroll-driven CSS exists, the @supports block below takes over and
+   drives the same properties continuously against the element's own view
+   progress, so it tracks the scrub instead of firing once. */
+.cine-reveal {
+  opacity: 0;
+  transform: translate3d(0, 2.5rem, 0);
+  transition:
+    opacity 900ms var(--cine-ease),
+    transform 900ms var(--cine-ease);
+}
+
+.cine-reveal.is-in {
+  opacity: 1;
+  transform: translate3d(0, 0, 0);
+}
+
+/* Staggered children — 40ms apart, inside the 30-50ms band that reads as one
+   gesture rather than a queue. */
+.cine-stagger > * {
+  opacity: 0;
+  transform: translate3d(0, 1.75rem, 0);
+  transition:
+    opacity 700ms var(--cine-ease),
+    transform 700ms var(--cine-ease);
+}
+
+.cine-stagger.is-in > * {
+  opacity: 1;
+  transform: translate3d(0, 0, 0);
+}
+
+.cine-stagger.is-in > *:nth-child(1) { transition-delay: 0ms; }
+.cine-stagger.is-in > *:nth-child(2) { transition-delay: 40ms; }
+.cine-stagger.is-in > *:nth-child(3) { transition-delay: 80ms; }
+.cine-stagger.is-in > *:nth-child(4) { transition-delay: 120ms; }
+.cine-stagger.is-in > *:nth-child(5) { transition-delay: 160ms; }
+.cine-stagger.is-in > *:nth-child(6) { transition-delay: 200ms; }
+
+/* Line-by-line mask: each line rides up from behind a clipped edge. */
+.cine-line {
+  display: block;
+  overflow: hidden;
+}
+
+.cine-line > span {
+  display: block;
+  transform: translate3d(0, 105%, 0);
+  transition: transform 1100ms var(--cine-ease);
+}
+
+.cine-line.is-in > span,
+.is-in .cine-line > span {
+  transform: translate3d(0, 0, 0);
+}
+
+.cine-line:nth-of-type(2) > span { transition-delay: 90ms; }
+.cine-line:nth-of-type(3) > span { transition-delay: 180ms; }
+
+/* ── Scroll-driven layer ──────────────────────────────────────────────────── */
+@supports (animation-timeline: view()) {
+  /* Parallax depth. Each layer travels a different distance across its own view
+     window, which is what sells depth — the far layer barely moves. */
+  .cine-par {
+    animation: cine-parallax linear both;
+    animation-timeline: view();
+    animation-range: entry 0% exit 100%;
+  }
+
+  .cine-par--slow { --cine-shift: 3vh; }
+  .cine-par--mid { --cine-shift: 8vh; }
+  .cine-par--fast { --cine-shift: 16vh; }
+
+  @keyframes cine-parallax {
+    from {
+      transform: translate3d(0, var(--cine-shift, 8vh), 0);
+    }
+    to {
+      transform: translate3d(0, calc(var(--cine-shift, 8vh) * -1), 0);
+    }
+  }
+
+  /* Reveals become scrubbed rather than triggered: they resolve as the element
+     crosses the lower third, and hold. `entry 20%` to `entry 65%` keeps the
+     payoff early enough that fast scrollers still see it complete. */
+  .cine-reveal {
+    animation: cine-rise linear both;
+    animation-timeline: view();
+    animation-range: entry 15% entry 60%;
+    transition: none;
+  }
+
+  @keyframes cine-rise {
+    from {
+      opacity: 0;
+      transform: translate3d(0, 2.5rem, 0);
+    }
+    to {
+      opacity: 1;
+      transform: translate3d(0, 0, 0);
+    }
+  }
+
+  /* A scene that fades and recedes as it leaves — the film cut between acts. */
+  .cine-scene__inner {
+    animation: cine-depart linear both;
+    animation-timeline: view();
+    animation-range: exit 0% exit 100%;
+  }
+
+  @keyframes cine-depart {
+    from {
+      opacity: 1;
+      transform: scale(1);
+    }
+    to {
+      opacity: 0;
+      transform: scale(0.94);
+    }
+  }
+
+  /* The act numeral counts up its own progress bar. */
+  .cine-progress::after {
+    animation: cine-fill linear both;
+    animation-timeline: view();
+    animation-range: entry 0% exit 100%;
+  }
+
+  @keyframes cine-fill {
+    from { transform: scaleX(0); }
+    to { transform: scaleX(1); }
+  }
+}
+
+/* ── Pinned acts ────────────────────────────────────────────────────────────
+   A tall section with a sticky viewport-height child: the content holds still
+   while the page scrolls past it, which is the pin without a scroll-jacking
+   library and without ever taking the scrollbar away from the user. */
+.cine-scene {
+  position: relative;
+}
+
+.cine-scene__inner {
+  position: sticky;
+  top: 0;
+  min-height: 100svh;
+  display: flex;
+  align-items: center;
+  overflow: hidden;
+}
+
+/* ── Horizontal rail ────────────────────────────────────────────────────────
+   Vertical scroll drives horizontal travel. `--cine-rail-x` is written by JS
+   (one rAF-throttled write per frame, no layout reads) because the distance
+   depends on measured content width. */
+.cine-rail__track {
+  display: flex;
+  gap: 1.5rem;
+  will-change: transform;
+  transform: translate3d(calc(var(--cine-rail-x, 0) * -1px), 0, 0);
+}
+
+/* ── Ambient: cursor-following glow ─────────────────────────────────────────
+   Position comes from CSS variables set on a rAF loop, so the browser composites
+   it and no React state churns per mousemove. */
+.cine-glow {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  background: radial-gradient(
+    28rem 28rem at var(--cine-mx, 50%) var(--cine-my, 40%),
+    rgba(201, 162, 78, 0.13),
+    transparent 70%
+  );
+  transition: opacity 600ms ease;
+}
+
+/* ── Grain ──────────────────────────────────────────────────────────────── */
+.cine-grain {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.16;
+  mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)' opacity='0.5'/%3E%3C/svg%3E");
+}
+
+/* ── Magnetic button ──────────────────────────────────────────────────────── */
+.cine-magnet {
+  transform: translate3d(var(--cine-magnet-x, 0px), var(--cine-magnet-y, 0px), 0);
+  transition: transform 400ms var(--cine-ease);
+}
+
+/* ── Scroll cue ───────────────────────────────────────────────────────────── */
+@keyframes cine-cue {
+  0%, 100% { transform: translateY(0); opacity: 0.55; }
+  50% { transform: translateY(0.5rem); opacity: 1; }
+}
+
+.cine-cue {
+  animation: cine-cue 2.2s ease-in-out infinite;
+}
+
+/* ── Reduced motion ─────────────────────────────────────────────────────────
+   Not a downgrade — the full story, delivered at rest. Every element that
+   animates in is forced to its resting state, and the pins release so nothing
+   depends on scroll distance to become readable. Parallax and scroll-jacking
+   are the two things this media query exists for. */
+@media (prefers-reduced-motion: reduce) {
+  .cine-signature__ink,
+  .cine-cue {
+    animation: none;
+  }
+
+  .cine-reveal,
+  .cine-stagger > *,
+  .cine-line > span {
+    opacity: 1;
+    transform: none;
+    transition: none;
+    animation: none;
+  }
+
+  .cine-par,
+  .cine-scene__inner,
+  .cine-progress::after {
+    animation: none;
+    transform: none;
+    opacity: 1;
+  }
+
+  .cine-scene__inner {
+    position: static;
+    min-height: 0;
+    padding-block: 5rem;
+  }
+
+  .cine-rail__track {
+    transform: none;
+    flex-wrap: wrap;
+  }
+
+  .cine-glow {
+    display: none;
+  }
+
+  .cine-magnet {
+    transform: none;
+    transition: none;
+  }
+}
