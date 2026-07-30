@@ -9,7 +9,8 @@ import {
   Magnetic,
   RevealProvider,
 } from "@/components/cinematic/motion";
-import { services } from "@/lib/content";
+import Image from "next/image";
+import { personalProjects, services } from "@/lib/content";
 import { getProjects } from "@/lib/data";
 import { primaryCta } from "@/lib/site";
 import "./cinematic.css";
@@ -35,17 +36,24 @@ const acts = [
   { n: "02", label: "Meta" },
   { n: "03", label: "Munca" },
   { n: "04", label: "Metoda" },
-  { n: "05", label: "Acum" },
+  { n: "05", label: "Parcly" },
+  { n: "06", label: "Acum" },
 ];
 
 export default async function TestPage() {
   const projects = await getProjects();
   const featured = projects.filter((p) => p.featured).slice(0, 8);
+  const parcly = personalProjects.find((p) => p.slug === "parcly");
 
   return (
     <div className="cine relative">
       <RevealProvider />
       <CursorGlow />
+
+      {/* Fills with the document — where the reader is in the story. */}
+      <div className="cine-progress-rail" aria-hidden>
+        <span className="cine-progress-rail__fill" />
+      </div>
 
       {/* ─── Overture: the signature writes itself ─────────────────────── */}
       <section className="relative flex min-h-svh flex-col justify-between overflow-hidden px-5 py-10 sm:px-8">
@@ -57,7 +65,10 @@ export default async function TestPage() {
 
         <div className="relative mx-auto w-full max-w-4xl">
           {/* The monogram, drawn rather than displayed. */}
-          <div className="cine-signature mx-auto w-[min(78vw,44rem)]" aria-hidden>
+          <div
+            className="cine-signature cine-push mx-auto w-[min(78vw,44rem)]"
+            aria-hidden
+          >
             <div className="cine-signature__ink" />
           </div>
           <h1 className="sr-only">
@@ -65,7 +76,7 @@ export default async function TestPage() {
           </h1>
 
           <p className="cine-reveal mx-auto mt-12 max-w-md text-center text-lead leading-relaxed text-cream/60 text-pretty">
-            O poveste în cinci acte, despre cum ajunge cineva să construiască
+            O poveste în șase acte, despre cum ajunge cineva să construiască
             site-uri care aduc clienți.
           </p>
         </div>
@@ -86,19 +97,25 @@ export default async function TestPage() {
       <Act
         n="01"
         label="Începutul"
-        heading="A scris prima pagină de HTML în liceu"
+        heading="N-a vrut un job. A vrut să construiască ceva al lui."
       >
         <p className="cine-reveal text-lead leading-relaxed text-cream/70 text-pretty">
-          Nu i-o ceruse nimeni și nu era pentru școală. Îi plăcea că scria ceva
-          seara și a doua zi exista pe internet, iar oricine îl putea deschide.
+          A început cu cod, pentru că acolo rezultatul se vedea cel mai repede:
+          scria ceva seara și a doua zi exista pe internet, iar oricine îl putea
+          deschide.
         </p>
         <p className="cine-reveal mt-6 leading-relaxed text-cream/50 text-pretty">
-          Apoi a venit CSS. Apoi JavaScript. Apoi treizeci de magazine
-          WordPress și WooCommerce pentru firme mici din România, discutate
-          direct cu proprietarii — scope, buget, ce vor de la site.
+          Dar nu s-a oprit la cât îi trebuia ca să se descurce. A făcut cursuri,
+          a citit, a construit proiecte doar pentru el — seară de seară, ani la
+          rând, fără să i-o ceară nimeni. Voia să fie bun, nu să se descurce.
+          Întâi HTML și CSS, apoi JavaScript, apoi PHP și WordPress, apoi cod
+          scris de la zero acolo unde un CMS nu mai ajungea.
         </p>
         <p className="cine-reveal mt-6 leading-relaxed text-cream/50 text-pretty">
-          Acolo a descoperit că partea grea nu e codul.
+          Apoi a înțeles că un site care arată bine și nu vinde e tot un site
+          prost. Așa au venit designul, marketingul și analiza de business — nu
+          ca meserii separate, ci ca aceeași meserie privită de la celălalt
+          capăt: ce anume îl face pe un client să cumpere.
         </p>
       </Act>
 
@@ -109,7 +126,13 @@ export default async function TestPage() {
           <div className="relative mx-auto w-full max-w-6xl px-5 sm:px-8">
             <ActMark n="02" label="Meta" />
 
-            <blockquote className="cine-par cine-par--slow mt-14 max-w-4xl font-display text-[clamp(1.9rem,5vw,4rem)] leading-[1.08] text-cream text-balance">
+            {/* The mark recurring as texture behind the line it belongs to. */}
+            <div
+              className="cine-watermark cine-turn -right-32 top-0 w-[42rem]"
+              aria-hidden
+            />
+
+            <blockquote className="cine-par cine-par--slow relative mt-14 max-w-4xl font-display text-[clamp(1.9rem,5vw,4rem)] leading-[1.08] text-cream text-balance">
               <span className="cine-line">
                 <span>Nimeni nu întreba</span>
               </span>
@@ -140,7 +163,7 @@ export default async function TestPage() {
       <section className="relative border-t border-cream/10">
         <div className="mx-auto max-w-6xl px-5 pt-24 sm:px-8">
           <ActMark n="03" label="Munca" />
-          <h2 className="cine-reveal mt-8 max-w-2xl font-display text-[clamp(1.8rem,3.6vw,3rem)] leading-tight text-cream text-balance">
+          <h2 className="cine-focus mt-8 max-w-2xl font-display text-[clamp(1.8rem,3.6vw,3rem)] leading-tight text-cream text-balance">
             La fiecare, a fost tot proiectul
           </h2>
         </div>
@@ -181,7 +204,7 @@ export default async function TestPage() {
           <div className="cine-grain" aria-hidden />
           <div className="relative mx-auto w-full max-w-6xl px-5 sm:px-8">
             <ActMark n="04" label="Metoda" />
-            <h2 className="cine-reveal mt-8 max-w-3xl font-display text-[clamp(1.8rem,3.6vw,3rem)] leading-tight text-cream text-balance">
+            <h2 className="cine-focus mt-8 max-w-3xl font-display text-[clamp(1.8rem,3.6vw,3rem)] leading-tight text-cream text-balance">
               Alege unealta după problemă, nu invers
             </h2>
 
@@ -214,7 +237,96 @@ export default async function TestPage() {
         </div>
       </section>
 
-      {/* ─── Act 05 — close ────────────────────────────────────────────── */}
+      {/* ─── Act 05 — Parcly, the method tested on his own money ───────── */}
+      {parcly && (
+        <section className="cine-scene border-t border-cream/10">
+          <div className="cine-scene__inner">
+            <div className="cine-grain" aria-hidden />
+            <div className="relative mx-auto w-full max-w-6xl px-5 sm:px-8">
+              <ActMark n="05" label="Parcly" />
+
+              <div className="mt-10 grid gap-12 lg:grid-cols-[1fr_1fr] lg:gap-20">
+                <div className="cine-par cine-par--slow">
+                  {parcly.logo && (
+                    // Both Parcly marks are ink + teal — they were drawn for the
+                    // cream surface on the homepage and disappear on ink. A light
+                    // plate is the brand-safe fix; recolouring the mark or
+                    // filter-inverting it would break its teal.
+                    <span className="cine-reveal inline-flex rounded-lg bg-cream px-5 py-3">
+                      <Image
+                        src="/brand/parcly-logo.svg"
+                        alt={parcly.name}
+                        width={376}
+                        height={129}
+                        className="h-9 w-auto sm:h-11"
+                      />
+                    </span>
+                  )}
+
+                  <h2 className="mt-9 font-display text-[clamp(1.7rem,3.2vw,2.7rem)] leading-tight text-cream text-balance">
+                    <span className="cine-line">
+                      <span>Își testează metoda</span>
+                    </span>
+                    <span className="cine-line text-gold-light">
+                      <span>pe banii lui.</span>
+                    </span>
+                  </h2>
+
+                  <p className="cine-reveal mt-8 max-w-md text-lead leading-relaxed text-cream/60 text-pretty">
+                    {parcly.pitch}
+                  </p>
+
+                  <ul className="cine-stagger mt-8 flex flex-wrap gap-2">
+                    {parcly.tech.map((t) => (
+                      <li
+                        key={t}
+                        className="rounded-full border border-cream/15 px-3 py-1 text-xs text-cream/50"
+                      >
+                        {t}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+
+                <div className="cine-par cine-par--mid lg:pt-6">
+                  {parcly.body.map((para, i) => (
+                    <p
+                      key={i}
+                      className={`cine-reveal leading-relaxed text-cream/50 text-pretty ${i > 0 ? "mt-5" : ""}`}
+                    >
+                      {para}
+                    </p>
+                  ))}
+
+                  <dl className="cine-stagger mt-12 grid gap-8 border-t border-cream/10 pt-8 sm:grid-cols-3">
+                    {parcly.facts.map((f) => (
+                      <div key={f.label}>
+                        <dt className="sr-only">{f.label}</dt>
+                        <dd>
+                          <span className="tabular block font-display text-2xl leading-none text-gold-light">
+                            {f.value}
+                          </span>
+                          <span className="mt-2 block text-xs leading-snug text-cream/40">
+                            {f.label}
+                          </span>
+                        </dd>
+                      </div>
+                    ))}
+                  </dl>
+
+                  {parcly.url && (
+                    <p className="cine-reveal mt-10 text-xs text-cream/35">
+                      {parcly.status} · {parcly.kicker}
+                    </p>
+                  )}
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* ─── Act 06 — close ────────────────────────────────────────────── */}
       <section className="relative flex min-h-svh items-center overflow-hidden border-t border-cream/10">
         <div className="cine-grain" aria-hidden />
         <div
@@ -223,7 +335,7 @@ export default async function TestPage() {
         />
 
         <div className="relative mx-auto w-full max-w-6xl px-5 sm:px-8">
-          <ActMark n="05" label="Acum" />
+          <ActMark n="06" label="Acum" />
 
           <h2 className="mt-10 max-w-4xl font-display text-[clamp(2rem,5.5vw,4.5rem)] leading-[1.05] text-cream text-balance">
             <span className="cine-line">
@@ -290,9 +402,11 @@ function Act({
       <div className="cine-scene__inner">
         <div className="cine-grain" aria-hidden />
         <div className="relative mx-auto grid w-full max-w-6xl gap-12 px-5 sm:px-8 lg:grid-cols-[0.8fr_1.2fr] lg:gap-20">
-          <div className="cine-par cine-par--slow">
+          {/* Two depths plus opposing lateral drift: the columns separate as
+              they travel, which is what reads as space rather than as a slide. */}
+          <div className="cine-drift cine-drift--left">
             <ActMark n={n} label={label} />
-            <h2 className="mt-8 font-display text-[clamp(1.8rem,3.6vw,3rem)] leading-tight text-cream text-balance">
+            <h2 className="cine-focus mt-8 font-display text-[clamp(1.8rem,3.6vw,3rem)] leading-tight text-cream text-balance">
               {heading}
             </h2>
           </div>

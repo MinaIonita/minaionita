@@ -131,9 +131,9 @@
     animation-range: entry 0% exit 100%;
   }
 
-  .cine-par--slow { --cine-shift: 3vh; }
-  .cine-par--mid { --cine-shift: 8vh; }
-  .cine-par--fast { --cine-shift: 16vh; }
+  .cine-par--slow { --cine-shift: 4vh; }
+  .cine-par--mid { --cine-shift: 11vh; }
+  .cine-par--fast { --cine-shift: 22vh; }
 
   @keyframes cine-parallax {
     from {
@@ -142,6 +142,80 @@
     to {
       transform: translate3d(0, calc(var(--cine-shift, 8vh) * -1), 0);
     }
+  }
+
+  /* Lateral drift — the layer slides sideways as well as vertically, which is
+     what stops deep parallax reading as a flat elevator. */
+  .cine-drift {
+    animation: cine-drift linear both;
+    animation-timeline: view();
+    animation-range: entry 0% exit 100%;
+  }
+
+  .cine-drift--left { --cine-drift-x: -4vw; }
+  .cine-drift--right { --cine-drift-x: 4vw; }
+
+  @keyframes cine-drift {
+    from {
+      transform: translate3d(calc(var(--cine-drift-x, 3vw) * -1), 6vh, 0);
+    }
+    to {
+      transform: translate3d(var(--cine-drift-x, 3vw), -6vh, 0);
+    }
+  }
+
+  /* Focus pull: the element resolves from soft to sharp as it settles, the way
+     a camera racks focus onto a subject. Blur is expensive to animate, so it is
+     kept to one element per act and paired with the scale it would have anyway. */
+  .cine-focus {
+    animation: cine-focus linear both;
+    animation-timeline: view();
+    animation-range: entry 10% entry 70%;
+  }
+
+  @keyframes cine-focus {
+    from {
+      opacity: 0;
+      filter: blur(14px);
+      transform: scale(1.06);
+    }
+    to {
+      opacity: 1;
+      filter: blur(0);
+      transform: scale(1);
+    }
+  }
+
+  /* Slow zoom across the whole act — the push-in that makes a static frame feel
+     alive without anything actually moving in it. */
+  .cine-push {
+    animation: cine-push linear both;
+    animation-timeline: view();
+    animation-range: entry 0% exit 100%;
+  }
+
+  @keyframes cine-push {
+    from { transform: scale(1.12); }
+    to { transform: scale(1); }
+  }
+
+  /* Counter-rotating watermark. A degree and a half is enough to register as
+     drift and not enough to read as a spinning logo. */
+  .cine-turn {
+    animation: cine-turn linear both;
+    animation-timeline: view();
+    animation-range: entry 0% exit 100%;
+  }
+
+  @keyframes cine-turn {
+    from { transform: rotate(-2.5deg) scale(1.05) translate3d(0, 4vh, 0); }
+    to { transform: rotate(2.5deg) scale(1) translate3d(0, -4vh, 0); }
+  }
+
+  /* Story progress rail, driven by the whole document rather than a view range. */
+  .cine-progress-rail__fill {
+    animation: cine-fill-y linear both;
+    animation-timeline: scroll(root block);
   }
 
   /* Reveals become scrubbed rather than triggered: they resolve as the element
@@ -240,6 +314,65 @@
   transition: opacity 600ms ease;
 }
 
+/* ── Story progress rail ────────────────────────────────────────────────────
+   A hairline down the right edge that fills with the document. Decorative, so
+   aria-hidden — the acts are already navigable as headings. */
+.cine-progress-rail {
+  position: fixed;
+  right: 1.25rem;
+  top: 22vh;
+  bottom: 22vh;
+  width: 1px;
+  z-index: 20;
+  background: rgba(251, 249, 245, 0.12);
+  pointer-events: none;
+}
+
+.cine-progress-rail__fill {
+  display: block;
+  height: 100%;
+  width: 100%;
+  transform-origin: top;
+  transform: scaleY(0);
+  background: linear-gradient(
+    to bottom,
+    var(--color-gold-light),
+    var(--color-gold-glow)
+  );
+}
+
+/* Without scroll-driven support the rail simply sits full — a permanently empty
+   hairline would read as a broken control. */
+@supports not (animation-timeline: scroll()) {
+  .cine-progress-rail__fill {
+    transform: scaleY(1);
+    opacity: 0.35;
+  }
+}
+
+/* Named apart from cine-fill: that one drives the act numeral's rule on scaleX,
+   and reusing the name here would have flipped it to a vertical wipe. */
+@keyframes cine-fill-y {
+  from { transform: scaleY(0); }
+  to { transform: scaleY(1); }
+}
+
+/* Watermark monogram behind an act — the mark that opened the story recurring
+   as texture rather than as a logo. */
+.cine-watermark {
+  position: absolute;
+  pointer-events: none;
+  opacity: 0.045;
+  -webkit-mask-image: url("/brand/logo-mi-cream.png");
+  mask-image: url("/brand/logo-mi-cream.png");
+  -webkit-mask-size: contain;
+  mask-size: contain;
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+  background: var(--color-cream);
+  aspect-ratio: 1104 / 425;
+}
+
 /* ── Grain ──────────────────────────────────────────────────────────────── */
 .cine-grain {
   position: absolute;
@@ -287,11 +420,21 @@
   }
 
   .cine-par,
+  .cine-drift,
+  .cine-focus,
+  .cine-push,
+  .cine-turn,
   .cine-scene__inner,
-  .cine-progress::after {
+  .cine-progress::after,
+  .cine-progress-rail__fill {
     animation: none;
     transform: none;
     opacity: 1;
+    filter: none;
+  }
+
+  .cine-progress-rail {
+    display: none;
   }
 
   .cine-scene__inner {
