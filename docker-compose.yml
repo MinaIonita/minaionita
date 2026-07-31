@@ -1,0 +1,74 @@
+# Stack-ul minaionita.ro pentru Coolify.
+#
+# Trei servicii: baza de date, API-ul și site-ul. Doar site-ul și API-ul sunt
+# expuse prin proxy; baza rămâne exclusiv pe rețeaua internă.
+#
+# Coolify injectează variabilele din interfață, deci aici nu există niciun
+# secret — doar referințe.
+
+services:
+  db:
+    image: mysql:8.4
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: ${MYSQL_DATABASE:-minaionita}
+      MYSQL_USER: ${MYSQL_USER:-minaionita}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:?lipseste MYSQL_PASSWORD}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:?lipseste MYSQL_ROOT_PASSWORD}
+    volumes:
+      - mysql-data:/var/lib/mysql
+    # Fara ports: baza nu trebuie sa fie accesibila din afara stack-ului.
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "127.0.0.1", "-u", "root", "-p${MYSQL_ROOT_PASSWORD}"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 40s
+
+  api:
+    build:
+      context: .
+      dockerfile: apps/api/Dockerfile
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      NODE_ENV: production
+      HOST: 0.0.0.0
+      PORT: 4000
+      DATABASE_URL: "mysql://${MYSQL_USER:-minaionita}:${MYSQL_PASSWORD}@db:3306/${MYSQL_DATABASE:-minaionita}"
+      JWT_SECRET: ${JWT_SECRET:?lipseste JWT_SECRET}
+      JWT_EXPIRES: "7d"
+      ENCRYPTION_KEY: ${ENCRYPTION_KEY:?lipseste ENCRYPTION_KEY}
+      CORS_ORIGIN: ${CORS_ORIGIN:-https://minaionita.ro}
+      ADMIN_EMAIL: ${ADMIN_EMAIL}
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD}
+      CONTACT_NOTIFY_EMAIL: ${CONTACT_NOTIFY_EMAIL:-mina.ionita1@gmail.com}
+      MAIL_FROM: ${MAIL_FROM:-contact@minaionita.ro}
+      SMTP_URL: ${SMTP_URL:-}
+    expose:
+      - "4000"
+
+  web:
+    build:
+      context: .
+      dockerfile: apps/web/Dockerfile
+      args:
+        # Ajunge în bundle la build, deci trebuie corect din prima.
+        NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-https://minaionita.ro/api}
+    restart: unless-stopped
+    depends_on:
+      - api
+    environment:
+      NODE_ENV: production
+      PORT: 3000
+      HOSTNAME: 0.0.0.0
+      # Randarea pe server merge direct la container, fără să iasă pe internet.
+      API_URL: "http://api:4000/api"
+      NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-https://minaionita.ro/api}
+    expose:
+      - "3000"
+
+volumes:
+  mysql-data:

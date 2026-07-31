@@ -1,3 +1,4 @@
+import path from "node:path";
 import type { NextConfig } from "next";
 
 /**
@@ -27,6 +28,13 @@ const securityHeaders = [
 ];
 
 const nextConfig: NextConfig = {
+  // Traces exactly the files the server needs and copies them into .next/standalone.
+  // Without it the runtime image has to carry the whole node_modules of a
+  // monorepo — hundreds of megabytes, most of it build-time only.
+  output: "standalone",
+  // The monorepo root, so tracing follows workspace links correctly.
+  outputFileTracingRoot: path.join(process.cwd(), "../../"),
+
   // Don't advertise the framework and version to anyone scanning for exploits.
   poweredByHeader: false,
 
