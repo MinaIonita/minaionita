@@ -59,7 +59,14 @@ services:
 
       - traefik.http.routers.mina-web-http.rule=Host(`minaionita.ro`) || Host(`www.minaionita.ro`)
       - traefik.http.routers.mina-web-http.entrypoints=http
-      - traefik.http.routers.mina-web-http.middlewares=mina-https-redirect
+      - traefik.http.routers.mina-web-http.middlewares=mina-web-https-redirect
+
+      # Middleware-ul trebuie declarat pe containerul care îl folosește.
+      # Prima versiune îl definea doar pe `api` și îl referea din ruterul lui
+      # `web`; Traefik loga „middleware does not exist" la fiecare cerere și
+      # servea http-ul nesecurizat în loc să redirecționeze.
+      - traefik.http.middlewares.mina-web-https-redirect.redirectscheme.scheme=https
+      - traefik.http.middlewares.mina-web-https-redirect.redirectscheme.permanent=true
 
       - traefik.http.routers.mina-web.rule=Host(`minaionita.ro`)
       - traefik.http.routers.mina-web.entrypoints=https
