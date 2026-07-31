@@ -37,7 +37,12 @@ services:
       NODE_ENV: production
       HOST: 0.0.0.0
       PORT: 4000
-      DATABASE_URL: "mysql://${MYSQL_USER:-minaionita}:${MYSQL_PASSWORD}@db:3306/${MYSQL_DATABASE:-minaionita}"
+      # allowPublicKeyRetrieval: MySQL 8.4 autentifică implicit cu
+      # caching_sha2_password, iar driverul refuză să ceară cheia publică fără
+      # acordul explicit. Fără el, conexiunile expiră cu „RSA public key is not
+      # available client side" — un mesaj care nu sugerează deloc autentificarea.
+      # Sigur aici: traficul nu iese din rețeaua internă a stack-ului.
+      DATABASE_URL: "mysql://${MYSQL_USER:-minaionita}:${MYSQL_PASSWORD}@db:3306/${MYSQL_DATABASE:-minaionita}?allowPublicKeyRetrieval=true"
       JWT_SECRET: ${JWT_SECRET:?lipseste JWT_SECRET}
       JWT_EXPIRES: "7d"
       ENCRYPTION_KEY: ${ENCRYPTION_KEY:?lipseste ENCRYPTION_KEY}
