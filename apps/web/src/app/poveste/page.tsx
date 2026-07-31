@@ -11,23 +11,30 @@ import {
 import Image from "next/image";
 import { personalProjects, services } from "@/lib/content";
 import { getProjects } from "@/lib/data";
-import { primaryCta } from "@/lib/site";
+import { businessNode, personNode } from "@/lib/schema";
+import { primaryCta, site } from "@/lib/site";
 import "./cinematic.css";
 
 /**
- * Cinematic test page (/test).
+ * The story, told by scrolling (/poveste).
  *
- * A scroll-told version of the same story the homepage carries in prose. It is
- * an experiment sitting next to the live page, not a replacement — the homepage
- * keeps its structure and its SEO.
+ * A destination, not an entry point. The homepage stays the door people arrive
+ * at from search — it carries the structured data, the citable definition in the
+ * first 150 words and the contact form. This page is where someone who already
+ * knows who Mina is gets the long version: linked from the homepage, from
+ * /despre, from a proposal or a LinkedIn post.
  *
- * noindex is load-bearing here: two pages telling one entity's story with the
- * same claims would compete in search, and this one has none of the structured
- * data that makes the real homepage citable.
+ * It is indexable but deliberately positioned away from the commercial keywords:
+ * /despre remains the canonical entity page (personNode still points its
+ * mainEntityOfPage there), and this is a WebPage *about* that entity. Titling it
+ * "dezvoltator web" too would put two of the site's own pages in the same
+ * auction.
  */
 export const metadata: Metadata = {
-  title: "Test — versiune cinematică",
-  robots: { index: false, follow: false },
+  title: "Povestea mea, în șase acte",
+  description:
+    "De la prima pagină de HTML scrisă în liceu, la doi ani în Meta și la propriul produs. Povestea din spatele site-urilor pe care le construiesc, spusă pe scroll.",
+  alternates: { canonical: "/poveste" },
 };
 
 const acts = [
@@ -41,7 +48,7 @@ const acts = [
 
 /** Every public page, so the story doesn't end in a dead end. */
 const siteIndex = [
-  { href: "/", label: "Acasă", note: "Versiunea publică a site-ului" },
+  { href: "/", label: "Acasă", note: "Serviciile, portofoliul, modul de lucru" },
   { href: "/servicii", label: "Servicii", note: "Proces, prețuri orientative, exemple" },
   { href: "/portofoliu", label: "Portofoliu", note: "Toate proiectele, live și verificabile" },
   { href: "/proiecte-personale", label: "Proiecte personale", note: "Parcly și ce mai construiesc" },
@@ -54,8 +61,44 @@ export default async function TestPage() {
   const featured = projects.filter((p) => p.featured).slice(0, 8);
   const parcly = personalProjects.find((p) => p.slug === "parcly");
 
+  // WebPage rather than AboutPage: /despre already owns that role, and the
+  // identity nodes travel along so this URL resolves the entity on its own.
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@graph": [
+      personNode(),
+      businessNode(),
+      {
+        "@type": "WebPage",
+        "@id": `${site.url}/poveste#page`,
+        url: `${site.url}/poveste`,
+        name: "Povestea mea, în șase acte",
+        description:
+          "Parcursul lui Mina Ioniță, de la primele pagini de HTML la doi ani în Meta și la propriul produs.",
+        about: { "@id": `${site.url}/#person` },
+        isPartOf: { "@id": `${site.url}/#business` },
+      },
+      {
+        "@type": "BreadcrumbList",
+        itemListElement: [
+          { "@type": "ListItem", position: 1, name: "Acasă", item: site.url },
+          {
+            "@type": "ListItem",
+            position: 2,
+            name: "Povestea mea",
+            item: `${site.url}/poveste`,
+          },
+        ],
+      },
+    ],
+  };
+
   return (
     <div className="cine relative">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
       <RevealProvider />
       <CursorGlow />
 
@@ -80,12 +123,15 @@ export default async function TestPage() {
           >
             <div className="cine-signature__ink" />
           </div>
-          <h1 className="sr-only">
-            Mina Ioniță — versiune cinematică a poveștii
+          {/* A real H1 now that the page is indexable — the mark above is
+              decorative and carries no text for a crawler. */}
+          <h1 className="cine-reveal mx-auto mt-12 max-w-2xl text-center font-display text-[clamp(1.5rem,3vw,2.2rem)] leading-tight text-cream text-balance">
+            Povestea mea, în șase acte
           </h1>
 
-          <p className="cine-reveal mx-auto mt-12 max-w-md text-center text-lead leading-relaxed text-cream/60 text-pretty">
-            Șase acte despre cum am ajuns să construiesc site-uri care aduc
+          <p className="cine-reveal mx-auto mt-5 max-w-md text-center text-lead leading-relaxed text-cream/60 text-pretty">
+            De la prima pagină de HTML scrisă în liceu, la doi ani în Meta și la
+            propriul produs — cum am ajuns să construiesc site-uri care aduc
             clienți.
           </p>
         </div>
@@ -421,10 +467,10 @@ export default async function TestPage() {
             </Magnetic>
 
             <Link
-              href="/"
+              href="/portofoliu"
               className="text-sm text-cream/50 underline-offset-4 transition-colors duration-200 hover:text-cream hover:underline"
             >
-              Vezi versiunea live a site-ului
+              Vezi portofoliul
             </Link>
           </div>
 
@@ -458,12 +504,7 @@ export default async function TestPage() {
           </nav>
 
           <p className="mt-12 text-xs text-cream/30">
-            Pagină de test — {acts.length} acte. Versiunea publică a site-ului
-            rămâne pe{" "}
-            <Link href="/" className="underline underline-offset-4 hover:text-cream/60">
-              pagina principală
-            </Link>
-            .
+            {acts.length} acte · {site.legal}
           </p>
         </div>
       </section>

@@ -46,6 +46,7 @@ ${serviceLines}
 - [Servicii](${site.url}/servicii): lista serviciilor, fiecare cu proces de lucru și întrebări frecvente.
 - [Portofoliu](${site.url}/portofoliu): proiecte livrate, toate live și verificabile.
 - [Despre](${site.url}/despre): parcurs profesional, certificări și experiența din Meta.
+- [Povestea mea](${site.url}/poveste): parcursul spus în șase acte, de la primele pagini de HTML la propriul produs.
 - [Proiecte personale](${site.url}/proiecte-personale): produse proprii, construite pe riscul lui.
 - [Contact](${site.url}/contact): formular, email, telefon și WhatsApp, plus întrebări frecvente despre colaborare.
 

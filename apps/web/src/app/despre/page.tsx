@@ -330,6 +330,9 @@ export default function DesprePage() {
             <ButtonLink href={primaryCta.href} className="px-8">
               {primaryCta.label}
             </ButtonLink>
+            <ButtonLink href="/poveste" variant="secondary">
+              Parcurge povestea pe scroll
+            </ButtonLink>
             <ButtonLink href="/portofoliu" variant="secondary">
               Vezi portofoliul
             </ButtonLink>

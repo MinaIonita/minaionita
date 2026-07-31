@@ -57,9 +57,15 @@ export function Answer() {
               între noi și fără adaos de agenție.
             </p>
 
-            <div className="mt-9">
+            <div className="mt-9 flex flex-wrap items-center gap-x-7 gap-y-3">
               <ButtonLink href="/despre" variant="ghost">
                 Citește povestea completă
+              </ButtonLink>
+              {/* The scroll-told version. Offered here rather than in the nav:
+                  it's a destination for someone already interested, not a door
+                  competing with the services for a first-time visitor. */}
+              <ButtonLink href="/poveste" variant="ghost">
+                Sau parcurge-o pe scroll
               </ButtonLink>
             </div>
           </div>

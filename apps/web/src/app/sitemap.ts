@@ -33,6 +33,9 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { path: "/contact", priority: 0.9, changeFrequency: "monthly" },
     { path: "/portofoliu", priority: 0.8, changeFrequency: "monthly" },
     { path: "/despre", priority: 0.7, changeFrequency: "yearly" },
+    // A destination, not an entry point — indexable, but it should never
+    // outrank the pages that carry the commercial intent.
+    { path: "/poveste", priority: 0.5, changeFrequency: "yearly" },
     { path: "/proiecte-personale", priority: 0.6, changeFrequency: "monthly" },
     ...services.map((s) => ({
       path: `/servicii/${s.slug}`,
