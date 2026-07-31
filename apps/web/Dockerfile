@@ -13,7 +13,11 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 COPY package.json package-lock.json ./
 COPY apps/web/package.json ./apps/web/
 COPY apps/api/package.json ./apps/api/
-RUN npm ci --workspace=web --include-workspace-root
+# Toate workspace-urile, nu doar `web`. Cu --workspace=web, dependințele
+# imbricate ale lui sharp lipsesc, iar tracing-ul pentru output standalone se
+# oprește încercând să copieze fișiere care nu există. Diferența de timp e mică;
+# oricum nimic din node_modules nu ajunge în imaginea finală.
+RUN npm ci
 
 # ── Build ──────────────────────────────────────────────────────────────────
 FROM node:22-slim AS builder
