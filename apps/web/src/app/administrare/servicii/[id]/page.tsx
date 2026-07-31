@@ -96,7 +96,7 @@ export default function ServiceEditorPage() {
     <AdminShell>
       <div className="flex items-center justify-between gap-4">
         <div>
-          <Link href="/admin/servicii" className="text-xs text-muted hover:text-ink">
+          <Link href="/administrare/servicii" className="text-xs text-muted hover:text-ink">
             ← Servicii
           </Link>
           <h1 className="mt-2 font-display text-display text-ink">{svc.title}</h1>

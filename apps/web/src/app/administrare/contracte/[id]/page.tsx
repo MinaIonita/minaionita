@@ -54,7 +54,7 @@ export default function ContractDocumentPage() {
       {/* Toolbar — hidden when printing */}
       <div className="flex flex-wrap items-center justify-between gap-4 print:hidden">
         <div>
-          <Link href="/admin/contracte" className="text-xs text-muted hover:text-ink">
+          <Link href="/administrare/contracte" className="text-xs text-muted hover:text-ink">
             ← Contracte
           </Link>
           <h1 className="tabular mt-2 font-display text-display text-ink">{c.number}</h1>
@@ -70,7 +70,7 @@ export default function ContractDocumentPage() {
             onClick={async () => {
               if (confirm("Ștergi contractul?")) {
                 await api.deleteContract(c.id);
-                window.location.href = "/admin/contracte";
+                window.location.href = "/administrare/contracte";
               }
             }}
             className="min-h-11 cursor-pointer rounded-full px-4 text-sm text-muted hover:text-danger"

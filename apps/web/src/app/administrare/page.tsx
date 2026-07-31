@@ -85,7 +85,7 @@ export default function TicketsPage() {
           {leads.map((lead) => (
             <li key={lead.id} className="rounded-lg border border-rule bg-cream-sunk p-5 sm:p-6">
               <div className="flex flex-wrap items-start justify-between gap-4">
-                <a href={`/admin/tichete/${lead.id}`} className="group min-w-0">
+                <a href={`/administrare/tichete/${lead.id}`} className="group min-w-0">
                   <p className="font-medium text-ink group-hover:text-gold-deep">
                     {lead.name}
                   </p>
@@ -108,7 +108,7 @@ export default function TicketsPage() {
               </div>
 
               {lead.message && (
-                <a href={`/admin/tichete/${lead.id}`} className="mt-3 block line-clamp-2 text-sm leading-relaxed text-muted hover:text-ink">
+                <a href={`/administrare/tichete/${lead.id}`} className="mt-3 block line-clamp-2 text-sm leading-relaxed text-muted hover:text-ink">
                   {lead.message}
                 </a>
               )}
@@ -117,7 +117,7 @@ export default function TicketsPage() {
                 <span>{new Date(lead.createdAt).toLocaleString("ro-RO")}</span>
                 {lead.service && <span>{lead.service.title}</span>}
                 {lead.utmSource && <span>Sursă: {lead.utmSource}</span>}
-                <a href={`/admin/tichete/${lead.id}`} className="ml-auto text-gold-deep hover:underline">
+                <a href={`/administrare/tichete/${lead.id}`} className="ml-auto text-gold-deep hover:underline">
                   Deschide →
                 </a>
               </div>

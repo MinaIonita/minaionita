@@ -34,12 +34,12 @@ export default function robots(): MetadataRoute.Robots {
         allow: "/",
         // Admin, ticket threads and shared quote links must stay out of the
         // index (brief §6bis).
-        disallow: ["/api/", "/admin/", "/oferta/"],
+        disallow: ["/api/", "/administrare/", "/oferta/"],
       },
       {
         userAgent: "*",
         allow: "/",
-        disallow: ["/api/", "/admin/", "/oferta/"],
+        disallow: ["/api/", "/administrare/", "/oferta/"],
       },
     ],
     sitemap: `${site.url}/sitemap.xml`,

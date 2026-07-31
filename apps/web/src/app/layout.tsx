@@ -60,6 +60,11 @@ export async function generateMetadata(): Promise<Metadata> {
       canonical: "/",
       languages: { "ro-RO": "/", "en-US": "/en" },
     },
+    // Google Search Console ownership. Needed before the sitemap can be
+    // submitted and before any indexing or Core Web Vitals data shows up.
+    verification: {
+      google: "u0ZCZjPFkWMswnwTA18h9j_Zdc0mMbLXQ07RP0iGRKI",
+    },
   };
 }
 

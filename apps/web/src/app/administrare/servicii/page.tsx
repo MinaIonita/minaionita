@@ -52,7 +52,7 @@ export default function ServicesListPage() {
           {services.map((s) => (
             <li key={s.id}>
               <Link
-                href={`/admin/servicii/${s.id}`}
+                href={`/administrare/servicii/${s.id}`}
                 className="flex items-center justify-between gap-4 bg-cream px-5 py-4 transition-colors duration-200 hover:bg-cream-sunk"
               >
                 <div className="min-w-0">

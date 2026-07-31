@@ -63,7 +63,7 @@ export default function ProjectsListPage() {
     setCreating(true);
     try {
       const p = await api.createProject({ clientName: "Client nou", stage: "QUOTED" });
-      router.push(`/admin/proiecte/${p.id}`);
+      router.push(`/administrare/proiecte/${p.id}`);
     } catch {
       setError("Nu am putut crea proiectul.");
       setCreating(false);
@@ -183,7 +183,7 @@ export default function ProjectsListPage() {
                   {/* Identity — click opens the file */}
                   <div className="min-w-[12rem] flex-1">
                     <button
-                      onClick={() => router.push(`/admin/proiecte/${p.id}`)}
+                      onClick={() => router.push(`/administrare/proiecte/${p.id}`)}
                       className="block cursor-pointer text-left font-medium text-ink hover:text-gold-deep"
                     >
                       {p.clientName}
@@ -238,7 +238,7 @@ export default function ProjectsListPage() {
                   </select>
 
                   <button
-                    onClick={() => router.push(`/admin/proiecte/${p.id}`)}
+                    onClick={() => router.push(`/administrare/proiecte/${p.id}`)}
                     aria-label={`Deschide ${p.clientName}`}
                     className="cursor-pointer text-gold transition-transform duration-200 hover:translate-x-0.5"
                   >

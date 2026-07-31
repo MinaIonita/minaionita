@@ -83,7 +83,7 @@ export default function PortfolioEditorPage() {
     <AdminShell>
       <div className="flex items-center justify-between gap-4">
         <div>
-          <Link href="/admin/portofoliu" className="text-xs text-muted hover:text-ink">
+          <Link href="/administrare/portofoliu" className="text-xs text-muted hover:text-ink">
             ← Portofoliu
           </Link>
           <h1 className="mt-2 font-display text-display text-ink">{p.client}</h1>

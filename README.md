@@ -15,13 +15,20 @@ npm run dev:api    # API pe :4000
 npm run dev        # site pe :3000
 ```
 
-Site: http://localhost:3000 · Admin: http://localhost:3000/admin/login
+Site: http://localhost:3000 · Admin: http://localhost:3000/administrare/login
 
 ## Configurare
 
-Copiază `apps/api/.env.example` în `apps/api/.env` și completează. **API-ul refuză să
-pornească** dacă lipsesc `JWT_SECRET`, `ENCRYPTION_KEY` sau `DATABASE_URL`, sau dacă
-au rămas valori placeholder — un deploy nesigur trebuie să se vadă, nu să treacă.
+Copiază `apps/api/.env.example` în `apps/api/.env` și `apps/web/.env.example` în
+`apps/web/.env.local`, apoi completează. **API-ul refuză să pornească** dacă
+lipsesc `JWT_SECRET`, `ENCRYPTION_KEY` sau `DATABASE_URL`, sau dacă au rămas
+valori placeholder — un deploy nesigur trebuie să se vadă, nu să treacă.
+
+⚠️ `NEXT_PUBLIC_API_URL` trebuie să fie originea reală a API-ului. Panoul de
+administrare rulează în browser și o apelează direct, iar `proxy.ts` o injectează
+în `connect-src` din CSP. Dacă e greșită, login-ul eșuează cu „Failed to fetch"
+în timp ce `curl` pe aceeași adresă funcționează — o combinație care trimite
+căutarea în direcția greșită.
 
 ```bash
 openssl rand -base64 48   # JWT_SECRET

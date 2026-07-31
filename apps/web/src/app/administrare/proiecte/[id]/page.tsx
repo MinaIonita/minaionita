@@ -80,7 +80,7 @@ export default function ProjectEditorPage() {
     if (!p || !confirm(`Ștergi definitiv clientul „${p.clientName}” și parolele lui?`)) return;
     try {
       await api.deleteProject(p.id);
-      router.push("/admin/proiecte");
+      router.push("/administrare/proiecte");
     } catch {
       setError("Nu am putut șterge.");
     }
@@ -105,7 +105,7 @@ export default function ProjectEditorPage() {
     <AdminShell>
       <div className="flex items-center justify-between gap-4">
         <div>
-          <Link href="/admin/proiecte" className="text-xs text-muted hover:text-ink">
+          <Link href="/administrare/proiecte" className="text-xs text-muted hover:text-ink">
             ← Clienți
           </Link>
           <h1 className="mt-2 font-display text-display text-ink">{p.clientName}</h1>

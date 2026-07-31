@@ -282,7 +282,7 @@ export default function MonitorPage() {
           <p className="mt-2 text-sm text-muted">
             Adaugă un site în câmpul de sus, sau completează datele de domeniu și
             hosting pentru clienți în secțiunea{" "}
-            <Link href="/admin/proiecte" className="text-gold-deep hover:underline">Clienți</Link>.
+            <Link href="/administrare/proiecte" className="text-gold-deep hover:underline">Clienți</Link>.
           </p>
         </div>
       ) : (
@@ -323,7 +323,7 @@ export default function MonitorPage() {
                         }`}
                       />
                       <div className="min-w-0">
-                        <Link href={`/admin/proiecte/${s.projectId}`} className="block truncate font-medium text-ink hover:text-gold-deep">
+                        <Link href={`/administrare/proiecte/${s.projectId}`} className="block truncate font-medium text-ink hover:text-gold-deep">
                           {s.clientName}
                         </Link>
                         {s.siteUrl && (

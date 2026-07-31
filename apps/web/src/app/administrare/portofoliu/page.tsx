@@ -53,7 +53,7 @@ export default function PortfolioListPage() {
           {items.map((p) => (
             <li key={p.id}>
               <Link
-                href={`/admin/portofoliu/${p.id}`}
+                href={`/administrare/portofoliu/${p.id}`}
                 className="flex items-center justify-between gap-4 bg-cream px-5 py-4 transition-colors duration-200 hover:bg-cream-sunk"
               >
                 <div className="min-w-0">

@@ -7,15 +7,15 @@ import { useEffect, useState } from "react";
 import { auth } from "@/lib/admin-api";
 
 const nav = [
-  { href: "/admin", label: "Tichete", icon: "📥" },
-  { href: "/admin/servicii", label: "Servicii", icon: "▤" },
-  { href: "/admin/portofoliu", label: "Portofoliu", icon: "▦" },
-  { href: "/admin/proiecte", label: "Clienți", icon: "◍" },
-  { href: "/admin/contracte", label: "Contracte", icon: "§" },
-  { href: "/admin/monitor", label: "Monitor", icon: "◉" },
-  { href: "/admin/testimoniale", label: "Testimoniale", icon: "❝" },
-  { href: "/admin/setari", label: "Setări", icon: "⚙" },
-  { href: "/admin/securitate", label: "Securitate", icon: "🔒" },
+  { href: "/administrare", label: "Tichete", icon: "📥" },
+  { href: "/administrare/servicii", label: "Servicii", icon: "▤" },
+  { href: "/administrare/portofoliu", label: "Portofoliu", icon: "▦" },
+  { href: "/administrare/proiecte", label: "Clienți", icon: "◍" },
+  { href: "/administrare/contracte", label: "Contracte", icon: "§" },
+  { href: "/administrare/monitor", label: "Monitor", icon: "◉" },
+  { href: "/administrare/testimoniale", label: "Testimoniale", icon: "❝" },
+  { href: "/administrare/setari", label: "Setări", icon: "⚙" },
+  { href: "/administrare/securitate", label: "Securitate", icon: "🔒" },
 ];
 
 /** Shared admin chrome: auth gate + left sidebar navigation. */
@@ -25,7 +25,7 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
   const [ready, setReady] = useState(false);
 
   useEffect(() => {
-    if (!auth.token) router.replace("/admin/login");
+    if (!auth.token) router.replace("/administrare/login");
     // eslint-disable-next-line react-hooks/set-state-in-effect
     else setReady(true);
   }, [router]);
@@ -33,14 +33,14 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
   if (!ready) return null;
 
   const isActive = (href: string) =>
-    href === "/admin" ? pathname === "/admin" || pathname.startsWith("/admin/tichete") : pathname.startsWith(href);
+    href === "/administrare" ? pathname === "/administrare" || pathname.startsWith("/administrare/tichete") : pathname.startsWith(href);
 
   return (
     <div className="min-h-dvh lg:grid lg:grid-cols-[15rem_1fr]">
       {/* Sidebar — becomes a top bar on mobile; hidden when printing */}
       <aside className="sticky top-0 z-10 flex h-auto flex-col border-b border-rule bg-cream/95 backdrop-blur-md lg:h-dvh lg:border-b-0 lg:border-r print:hidden">
         <div className="flex items-center justify-between px-5 py-4 lg:px-6">
-          <Link href="/admin" aria-label="Admin — acasă" className="inline-flex">
+          <Link href="/administrare" aria-label="Admin — acasă" className="inline-flex">
             <Image
               src="/brand/logo-mi-gold-light.png"
               alt="Mina Ioniță"
@@ -57,7 +57,7 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
             <button
               onClick={() => {
                 auth.clear();
-                router.replace("/admin/login");
+                router.replace("/administrare/login");
               }}
               className="text-xs text-muted"
             >
@@ -106,7 +106,7 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
           <button
             onClick={() => {
               auth.clear();
-              router.replace("/admin/login");
+              router.replace("/administrare/login");
             }}
             className="min-h-10 cursor-pointer rounded-full text-sm text-muted transition-colors duration-200 hover:text-ink"
           >

@@ -98,12 +98,19 @@ export function CursorGlow() {
 }
 
 /**
- * Horizontal rail: vertical scroll travels the track sideways.
+ * Horizontal rail: on desktop, vertical scroll travels the track sideways.
  *
  * The scroll handler writes one custom property per frame and never reads
  * layout — widths are measured once on mount and on resize, so the loop can't
  * trigger forced reflow.
+ *
+ * Below 1024px this stands down entirely and the stylesheet turns the row into a
+ * native swipe carousel with snap points. Converting vertical scroll into
+ * horizontal travel takes the scrollbar away from the reader; on a phone that
+ * reads as the page being stuck, and it fights the browser's own back gesture.
  */
+const RAIL_DESKTOP = "(min-width: 1024px)";
+
 export function HorizontalRail({ children }: { children: React.ReactNode }) {
   const sectionRef = useRef<HTMLDivElement>(null);
   const trackRef = useRef<HTMLDivElement>(null);
@@ -117,8 +124,21 @@ export function HorizontalRail({ children }: { children: React.ReactNode }) {
     let distance = 0;
     let raf = 0;
     let pending = false;
+    const desktop = window.matchMedia(RAIL_DESKTOP);
+
+    const release = () => {
+      // Hand the row back to the browser: clear both the imposed height and the
+      // transform, or the swipe carousel starts life offset by whatever the
+      // desktop driver last wrote.
+      section.style.height = "";
+      track.style.removeProperty("--cine-rail-x");
+    };
 
     const measure = () => {
+      if (!desktop.matches) {
+        release();
+        return;
+      }
       distance = Math.max(0, track.scrollWidth - window.innerWidth + 80);
       // The section is made as tall as the horizontal distance, so one screen of
       // vertical scroll moves one screen of rail — the mapping feels 1:1.
@@ -127,6 +147,7 @@ export function HorizontalRail({ children }: { children: React.ReactNode }) {
 
     const update = () => {
       pending = false;
+      if (!desktop.matches) return;
       const rect = section.getBoundingClientRect();
       const total = rect.height - window.innerHeight;
       if (total <= 0) return;
@@ -141,20 +162,27 @@ export function HorizontalRail({ children }: { children: React.ReactNode }) {
       }
     };
 
+    const onBreakpoint = () => {
+      measure();
+      update();
+    };
+
     measure();
     update();
     window.addEventListener("scroll", onScroll, { passive: true });
     window.addEventListener("resize", measure, { passive: true });
+    desktop.addEventListener("change", onBreakpoint);
     return () => {
       window.removeEventListener("scroll", onScroll);
       window.removeEventListener("resize", measure);
+      desktop.removeEventListener("change", onBreakpoint);
       cancelAnimationFrame(raf);
     };
   }, []);
 
   return (
-    <section ref={sectionRef} className="relative">
-      <div className="sticky top-0 flex min-h-svh items-center overflow-hidden">
+    <section ref={sectionRef} className="cine-rail relative">
+      <div className="cine-rail__viewport sticky top-0 flex min-h-svh items-center overflow-hidden">
         <div ref={trackRef} className="cine-rail__track px-5 sm:px-8">
           {children}
         </div>

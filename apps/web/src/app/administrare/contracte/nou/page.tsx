@@ -90,7 +90,7 @@ export default function NewContractPage() {
         penaltyPct: f.penaltyPct != null ? Number(f.penaltyPct) : undefined,
         deliveryTerm: f.deliveryTerm,
       });
-      router.push(`/admin/contracte/${created.id}`);
+      router.push(`/administrare/contracte/${created.id}`);
     } catch {
       setError("Nu am putut salva contractul.");
     } finally {
@@ -102,7 +102,7 @@ export default function NewContractPage() {
 
   return (
     <AdminShell>
-      <Link href="/admin/contracte" className="text-xs text-muted hover:text-ink">
+      <Link href="/administrare/contracte" className="text-xs text-muted hover:text-ink">
         ← Contracte
       </Link>
       <h1 className="mt-2 font-display text-display text-ink">Contract nou</h1>

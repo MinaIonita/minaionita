@@ -19,6 +19,14 @@
   --cine-ease: cubic-bezier(0.16, 1, 0.3, 1);
   background: var(--color-ink);
   color: var(--color-cream);
+
+  /* The horizontal rail is 3181px of track inside a 603px scroll container.
+     Every element is correctly clipped — an audit found zero elements escaping
+     their ancestor — but the document's scrollable area still grew to 2754px,
+     so the page scrolled sideways on a phone with nothing visible out there.
+     `clip` rather than `hidden`: hidden would make this a scroll container and
+     break the sticky positioning the desktop acts are pinned with. */
+  overflow-x: clip;
 }
 
 /* ── Signature: the monogram writes itself ──────────────────────────────────
@@ -298,6 +306,43 @@
   transform: translate3d(calc(var(--cine-rail-x, 0) * -1px), 0, 0);
 }
 
+/* On touch, the rail becomes what a phone already knows how to do: a swipeable
+   row with snap points. Driving horizontal travel from vertical scroll takes the
+   scrollbar away from the reader, and on a phone that reads as the page being
+   stuck. The JS driver stands down at the same breakpoint. */
+@media (max-width: 1023px) {
+  .cine-rail {
+    position: static;
+    height: auto !important;
+  }
+
+  .cine-rail__viewport {
+    position: static;
+    min-height: 0;
+    overflow-x: auto;
+    overflow-y: hidden;
+    scroll-snap-type: x mandatory;
+    /* Momentum stays inside the row instead of chaining to the page. */
+    overscroll-behavior-x: contain;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    padding-block: 1rem 2.5rem;
+  }
+
+  .cine-rail__viewport::-webkit-scrollbar {
+    display: none;
+  }
+
+  .cine-rail__track {
+    transform: none !important;
+    will-change: auto;
+  }
+
+  .cine-rail__track > * {
+    scroll-snap-align: start;
+  }
+}
+
 /* ── Ambient: cursor-following glow ─────────────────────────────────────────
    Position comes from CSS variables set on a rAF loop, so the browser composites
    it and no React state churns per mousemove. */
@@ -397,6 +442,65 @@
 
 .cine-cue {
   animation: cine-cue 2.2s ease-in-out infinite;
+}
+
+/* ── Mobile: release the pins ───────────────────────────────────────────────
+   Pinned scroll-telling is a desktop affordance. On a phone it fails twice.
+
+   First, it clips: a sticky viewport-height box with overflow:hidden silently
+   cuts whatever doesn't fit, and narrow text wraps into far more lines — the
+   Parcly act measured 342px past the fold before this, with no way to reach it.
+   Second, `svh` shifts as the browser chrome hides and shows, so a pinned scene
+   resizes mid-scroll under the reader's thumb.
+
+   Below 1024px the acts become ordinary stacked sections: full text, normal
+   scroll, no clipping. The parallax comes off with them — its vertical travel
+   is what pushes content past the edge in the first place, and on a small
+   screen the depth it buys is nearly invisible anyway. */
+@media (max-width: 1023px) {
+  .cine-scene__inner {
+    position: static;
+    min-height: 0;
+    overflow: visible;
+    padding-block: 4.5rem;
+  }
+
+  .cine-par,
+  .cine-drift,
+  .cine-push,
+  .cine-turn {
+    animation: none !important;
+    transform: none !important;
+  }
+
+  /* The scene departure fades content out on exit — harmless when a scene is
+     pinned, but on a stacked layout it dims text the reader is still on. */
+  .cine-scene__inner {
+    animation: none !important;
+    opacity: 1 !important;
+  }
+
+  /* Focus pull stays, but without the scale: an animated blur across a
+     full-width block is the most expensive thing on this page, and mid-range
+     phones drop frames on it. */
+  .cine-focus {
+    animation: none;
+    opacity: 1;
+    filter: none;
+    transform: none;
+  }
+
+  /* The watermark is sized for a wide column; at phone width it lands on top of
+     the very line it is meant to sit behind. */
+  .cine-watermark {
+    display: none;
+  }
+
+  /* A fixed hairline 20px from the edge competes with the thumb and with the
+     browser's own scroll indicator. */
+  .cine-progress-rail {
+    display: none;
+  }
 }
 
 /* ── Reduced motion ─────────────────────────────────────────────────────────

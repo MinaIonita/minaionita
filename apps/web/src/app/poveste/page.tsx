@@ -231,6 +231,12 @@ export default async function TestPage() {
               Toate cele {projects.length} proiecte
             </ActLink>
           </div>
+
+          {/* The row is a swipe carousel below 1024px; without a hint, a static
+              first card reads as the whole section. */}
+          <p className="mt-6 text-xs text-cream/35 lg:hidden">
+            Glisează lateral prin proiecte →
+          </p>
         </div>
 
         <HorizontalRail>
@@ -240,7 +246,9 @@ export default async function TestPage() {
               href={p.url}
               target="_blank"
               rel="noopener noreferrer"
-              className="group w-[78vw] shrink-0 sm:w-[46vw] lg:w-[32vw]"
+              // 82vw leaves the next card peeking, which is what tells a thumb
+              // there is more to the right.
+              className="group w-[82vw] shrink-0 sm:w-[52vw] lg:w-[32vw]"
             >
               <div className="relative aspect-[16/10] overflow-hidden rounded-xl border border-cream/10 bg-ink-soft">
                 <Image

@@ -64,7 +64,7 @@ export default function TicketDetailPage() {
     if (!confirm("Transformi tichetul în client + proiect?")) return;
     try {
       const { projectId } = await api.convertLead(id);
-      router.push(`/admin/proiecte/${projectId}`);
+      router.push(`/administrare/proiecte/${projectId}`);
     } catch {
       setError("Nu am putut converti tichetul.");
     }
@@ -89,7 +89,7 @@ export default function TicketDetailPage() {
     <AdminShell>
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div>
-          <Link href="/admin" className="text-xs text-muted hover:text-ink">
+          <Link href="/administrare" className="text-xs text-muted hover:text-ink">
             ← Tichete
           </Link>
           <h1 className="mt-2 font-display text-display text-ink">{lead.name}</h1>
@@ -112,7 +112,7 @@ export default function TicketDetailPage() {
           </select>
           {lead.clientProjectId ? (
             <Link
-              href={`/admin/proiecte/${lead.clientProjectId}`}
+              href={`/administrare/proiecte/${lead.clientProjectId}`}
               className="min-h-10 inline-flex items-center rounded-full border border-rule-strong px-4 text-sm text-ink hover:border-gold"
             >
               Vezi clientul

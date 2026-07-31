@@ -36,7 +36,7 @@ export default function ContractsListPage() {
           </p>
         </div>
         <Link
-          href="/admin/contracte/nou"
+          href="/administrare/contracte/nou"
           className="min-h-11 cursor-pointer rounded-full bg-gold px-5 text-sm font-medium text-ink transition-colors duration-200 hover:bg-gold-light inline-flex items-center"
         >
           + Contract nou
@@ -61,7 +61,7 @@ export default function ContractsListPage() {
           {items.map((c) => (
             <li key={c.id}>
               <Link
-                href={`/admin/contracte/${c.id}`}
+                href={`/administrare/contracte/${c.id}`}
                 className="flex items-center justify-between gap-4 bg-cream px-5 py-4 transition-colors duration-200 hover:bg-cream-sunk"
               >
                 <div className="min-w-0">
