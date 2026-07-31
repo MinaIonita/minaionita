@@ -1,4 +1,4 @@
-import { serviceDetails } from "@/lib/content";
+import { faq, serviceDetails } from "@/lib/content";
 import { getServices } from "@/lib/data";
 import { site } from "@/lib/site";
 
@@ -49,6 +49,10 @@ ${serviceLines}
 - [Povestea mea](${site.url}/poveste): parcursul spus în șase acte, de la primele pagini de HTML la propriul produs.
 - [Proiecte personale](${site.url}/proiecte-personale): produse proprii, construite pe riscul lui.
 - [Contact](${site.url}/contact): formular, email, telefon și WhatsApp, plus întrebări frecvente despre colaborare.
+
+## Întrebări frecvente
+
+${faq.map((f) => `**${f.q}**\n${f.a}`).join("\n\n")}
 
 ## Contact
 

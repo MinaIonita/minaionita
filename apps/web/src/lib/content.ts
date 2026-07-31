@@ -878,3 +878,40 @@ export const process: Step[] = [
     body: "Instalez urmărirea conversiilor și raportez ce aduce clienți — și ce nu.",
   },
 ];
+
+/**
+ * Întrebări frecvente pentru pagina principală (brief §6bis).
+ *
+ * Formulate exact cum le-ar tasta cineva într-un chat cu un asistent AI, nu cum
+ * ar arăta un titlu de secțiune. Fiecare răspuns trebuie să stea în picioare
+ * rupt din context — motoarele AI ridică răspunsul, nu pagina.
+ *
+ * Cifrele au an și context: o statistică fără sursă e mai puțin citabilă decât
+ * una atribuită, pentru că modelul nu o poate verifica.
+ */
+export const faq: { q: string; a: string }[] = [
+  {
+    q: "Cât costă un site de prezentare în România?",
+    a: "Depinde de câte pagini are, dacă textele și pozele există deja și dacă se construiește pe WordPress sau de la zero. Nu dau prețuri fixe pe site pentru că ar fi minciună — pleci cu o estimare reală după auditul gratuit de 30 de minute, în care ne uităm împreună la ce îți trebuie efectiv.",
+  },
+  {
+    q: "Cât durează să faci un site?",
+    a: "Un site de prezentare obișnuit durează două–patru săptămâni de la brief la lansare. Un magazin online cu catalog, plăți și curieri ia patru–opt săptămâni. Ce lungește cel mai des termenul nu e codul, ci textele și pozele care vin târziu de la client.",
+  },
+  {
+    q: "WordPress sau site scris de la zero?",
+    a: "WordPress dacă vrei să editezi singur conținutul des și ai nevoie de funcții care există deja ca plugin. Cod scris de la zero dacă ai nevoie de viteză maximă, de o funcționalitate pe care un CMS n-o poate face, sau dacă vrei să nu depinzi de zeci de plugin-uri actualizate de străini. Aleg unealta după problemă, nu invers.",
+  },
+  {
+    q: "Faci și campanii, sau doar site-uri?",
+    a: "Fac amândouă, și de obicei împreună. Sunt Meta Certified Digital Marketing Associate și am lucrat doi ani în Meta, din Gdańsk, pe conturile celor mai mari companii din România. Un site fără trafic nu vinde, iar campaniile către un site prost ard bugetul — de asta le fac cap-coadă, cu urmărirea conversiilor instalată din prima zi.",
+  },
+  {
+    q: "Lucrezi doar în București?",
+    a: "Sunt în București, dar lucrez la distanță cu clienți din toată România și din Europa — am livrat proiecte pentru firme din Italia și Luxemburg. Majoritatea colaborărilor se desfășoară integral online, cu discuții pe video și livrări pe măsură ce avansăm.",
+  },
+  {
+    q: "Ce se întâmplă cu site-ul după lansare?",
+    a: "Rămâne al tău, cu tot cu acces la găzduire și la domeniu — nu țin nimic ostatic. Dacă vrei, ne înțelegem separat pentru mentenanță și optimizare continuă; dacă nu, îl poți duce oricui, pentru că e construit pe tehnologii standard, nu pe o platformă proprietară din care nu poți ieși.",
+  },
+];

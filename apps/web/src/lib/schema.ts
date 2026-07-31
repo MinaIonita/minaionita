@@ -1,4 +1,4 @@
-import { services } from "@/lib/content";
+import { faq, services } from "@/lib/content";
 import { site } from "@/lib/site";
 
 /**
@@ -73,10 +73,29 @@ export function businessNode() {
   };
 }
 
-/** Homepage graph. */
+/**
+ * Homepage graph.
+ *
+ * FAQPage e inclus aici, nu doar pe paginile de serviciu: pagina principală e
+ * cea mai des accesată de crawlere, iar perechile întrebare–răspuns sunt
+ * unitatea pe care motoarele AI o extrag cel mai des. Fără ele, întrebările
+ * directe („cât costă un site") nu găsesc pe pagină nimic de citat.
+ */
 export function homeJsonLd() {
   return {
     "@context": "https://schema.org",
-    "@graph": [personNode(), businessNode()],
+    "@graph": [
+      personNode(),
+      businessNode(),
+      {
+        "@type": "FAQPage",
+        "@id": `${site.url}/#faq`,
+        mainEntity: faq.map((f) => ({
+          "@type": "Question",
+          name: f.q,
+          acceptedAnswer: { "@type": "Answer", text: f.a },
+        })),
+      },
+    ],
   };
 }
