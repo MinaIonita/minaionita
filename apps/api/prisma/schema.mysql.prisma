@@ -380,9 +380,14 @@ model Credential {
 
   label       String
   username    String?
+  /// AES-256-GCM payload (iv.tag.ciphertext) from crypto.util — self-contained,
+  /// so no separate nonce column is needed.
+  ///
+  /// There used to be a `passwordNonce` column here, left over from an earlier
+  /// libsodium design that was never implemented. It only surfaced at the first
+  /// production build: the SQLite schema used in development doesn't have it, so
+  /// the code that never set it type-checked locally and failed on MySQL.
   passwordEnc String  @db.Text
-  /// Nonce for the libsodium secretbox — unique per record.
-  passwordNonce String
   loginUrl    String?
   note        String? @db.Text
 
