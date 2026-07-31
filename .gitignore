@@ -27,3 +27,6 @@ coverage/
 
 # Build caches
 *.tsbuildinfo
+
+# PM2 runtime logs
+logs/
