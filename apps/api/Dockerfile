@@ -24,6 +24,11 @@ COPY apps/api ./apps/api
 COPY apps/web/src/lib ./apps/web/src/lib
 
 WORKDIR /app/apps/api
+
+# prisma.config.ts rezolvă DATABASE_URL la încărcare, iar `generate` eșuează
+# fără ea — deși nu se conectează la nimic, doar citește schema. Valoarea de
+# aici e o umplutură pentru build; cea reală vine din mediu la rulare.
+ENV DATABASE_URL="mysql://build:build@localhost:3306/build"
 RUN npx prisma generate
 RUN npm run build
 
