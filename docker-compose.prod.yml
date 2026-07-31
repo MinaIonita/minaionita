@@ -1,0 +1,76 @@
+# Suprapunere de producție: expune stack-ul prin proxy-ul Traefik al Coolify.
+#
+# Se folosește împreună cu docker-compose.yml:
+#   docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d --build
+#
+# API-ul stă pe api.minaionita.ro, nu pe minaionita.ro/api, dintr-un motiv
+# concret: aplicația Next are propriile rute /api/lead și /api/consent, iar
+# NestJS servește tot sub /api. Pe același host, /api/consent ar exista în două
+# locuri și ar câștiga cine are prioritatea mai mare — exact genul de conflict
+# care se manifestă abia în producție, la prima trimitere de formular.
+
+services:
+  db:
+    networks:
+      - internal
+
+  api:
+    networks:
+      - internal
+      - coolify
+    labels:
+      - traefik.enable=true
+      - traefik.docker.network=coolify
+
+      # HTTP → redirect către HTTPS
+      - traefik.http.routers.mina-api-http.rule=Host(`api.minaionita.ro`)
+      - traefik.http.routers.mina-api-http.entrypoints=http
+      - traefik.http.routers.mina-api-http.middlewares=mina-https-redirect
+
+      # HTTPS
+      - traefik.http.routers.mina-api.rule=Host(`api.minaionita.ro`)
+      - traefik.http.routers.mina-api.entrypoints=https
+      - traefik.http.routers.mina-api.tls=true
+      - traefik.http.routers.mina-api.tls.certresolver=letsencrypt
+      - traefik.http.routers.mina-api.service=mina-api
+      - traefik.http.services.mina-api.loadbalancer.server.port=4000
+
+      - traefik.http.middlewares.mina-https-redirect.redirectscheme.scheme=https
+      - traefik.http.middlewares.mina-https-redirect.redirectscheme.permanent=true
+
+  web:
+    networks:
+      - internal
+      - coolify
+    labels:
+      - traefik.enable=true
+      - traefik.docker.network=coolify
+
+      # www → fără www, o singură adresă canonică pentru Google
+      - traefik.http.routers.mina-web-www.rule=Host(`www.minaionita.ro`)
+      - traefik.http.routers.mina-web-www.entrypoints=https
+      - traefik.http.routers.mina-web-www.tls=true
+      - traefik.http.routers.mina-web-www.tls.certresolver=letsencrypt
+      - traefik.http.routers.mina-web-www.middlewares=mina-www-redirect
+      - traefik.http.routers.mina-web-www.service=mina-web
+      - traefik.http.middlewares.mina-www-redirect.redirectregex.regex=^https://www\.minaionita\.ro/(.*)
+      - traefik.http.middlewares.mina-www-redirect.redirectregex.replacement=https://minaionita.ro/$${1}
+      - traefik.http.middlewares.mina-www-redirect.redirectregex.permanent=true
+
+      - traefik.http.routers.mina-web-http.rule=Host(`minaionita.ro`) || Host(`www.minaionita.ro`)
+      - traefik.http.routers.mina-web-http.entrypoints=http
+      - traefik.http.routers.mina-web-http.middlewares=mina-https-redirect
+
+      - traefik.http.routers.mina-web.rule=Host(`minaionita.ro`)
+      - traefik.http.routers.mina-web.entrypoints=https
+      - traefik.http.routers.mina-web.tls=true
+      - traefik.http.routers.mina-web.tls.certresolver=letsencrypt
+      - traefik.http.routers.mina-web.service=mina-web
+      - traefik.http.services.mina-web.loadbalancer.server.port=3000
+
+networks:
+  # Baza de date vorbește doar aici — nu e atașată la rețeaua proxy-ului.
+  internal:
+    driver: bridge
+  coolify:
+    external: true
