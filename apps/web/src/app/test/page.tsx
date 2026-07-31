@@ -1,5 +1,4 @@
 import { ArrowDown, ArrowUpRight } from "lucide-react";
-import * as Lucide from "lucide-react";
 import type { Metadata } from "next";
 import Link from "next/link";
 import {
@@ -40,6 +39,16 @@ const acts = [
   { n: "06", label: "Acum" },
 ];
 
+/** Every public page, so the story doesn't end in a dead end. */
+const siteIndex = [
+  { href: "/", label: "Acasă", note: "Versiunea publică a site-ului" },
+  { href: "/servicii", label: "Servicii", note: "Proces, prețuri orientative, exemple" },
+  { href: "/portofoliu", label: "Portofoliu", note: "Toate proiectele, live și verificabile" },
+  { href: "/proiecte-personale", label: "Proiecte personale", note: "Parcly și ce mai construiesc" },
+  { href: "/despre", label: "Despre mine", note: "Parcurs, certificări, CV" },
+  { href: "/contact", label: "Contact", note: "Audit gratuit de 30 de minute" },
+];
+
 export default async function TestPage() {
   const projects = await getProjects();
   const featured = projects.filter((p) => p.featured).slice(0, 8);
@@ -76,8 +85,8 @@ export default async function TestPage() {
           </h1>
 
           <p className="cine-reveal mx-auto mt-12 max-w-md text-center text-lead leading-relaxed text-cream/60 text-pretty">
-            O poveste în șase acte, despre cum ajunge cineva să construiască
-            site-uri care aduc clienți.
+            Șase acte despre cum am ajuns să construiesc site-uri care aduc
+            clienți.
           </p>
         </div>
 
@@ -97,22 +106,22 @@ export default async function TestPage() {
       <Act
         n="01"
         label="Începutul"
-        heading="N-a vrut un job. A vrut să construiască ceva al lui."
+        heading="N-am vrut un job. Am vrut să construiesc ceva al meu."
       >
         <p className="cine-reveal text-lead leading-relaxed text-cream/70 text-pretty">
-          A început cu cod, pentru că acolo rezultatul se vedea cel mai repede:
-          scria ceva seara și a doua zi exista pe internet, iar oricine îl putea
+          Am început cu cod, pentru că acolo rezultatul se vedea cel mai repede:
+          scriam ceva seara și a doua zi exista pe internet, iar oricine îl putea
           deschide.
         </p>
         <p className="cine-reveal mt-6 leading-relaxed text-cream/50 text-pretty">
-          Dar nu s-a oprit la cât îi trebuia ca să se descurce. A făcut cursuri,
-          a citit, a construit proiecte doar pentru el — seară de seară, ani la
-          rând, fără să i-o ceară nimeni. Voia să fie bun, nu să se descurce.
-          Întâi HTML și CSS, apoi JavaScript, apoi PHP și WordPress, apoi cod
-          scris de la zero acolo unde un CMS nu mai ajungea.
+          Dar nu m-am oprit la cât îmi trebuia ca să mă descurc. Am făcut
+          cursuri, am citit, am construit proiecte doar pentru mine — seară de
+          seară, ani la rând, fără să mi-o ceară nimeni. Voiam să fiu bun, nu să
+          mă descurc. Întâi HTML și CSS, apoi JavaScript, apoi PHP și WordPress,
+          apoi cod scris de la zero acolo unde un CMS nu mai ajungea.
         </p>
         <p className="cine-reveal mt-6 leading-relaxed text-cream/50 text-pretty">
-          Apoi a înțeles că un site care arată bine și nu vinde e tot un site
+          Apoi am înțeles că un site care arată bine și nu vinde e tot un site
           prost. Așa au venit designul, marketingul și analiza de business — nu
           ca meserii separate, ci ca aceeași meserie privită de la celălalt
           capăt: ce anume îl face pe un client să cumpere.
@@ -146,7 +155,8 @@ export default async function TestPage() {
 
             <p className="cine-reveal mt-10 max-w-xl leading-relaxed text-cream/50 text-pretty">
               Doi ani în Gdańsk, pe conturile celor mai mari companii din
-              România, din industrii care nu semănau deloc între ele.
+              România, din industrii care nu semănau deloc între ele. Le-am
+              ajutat să crească, iar eu am crescut odată cu ele.
             </p>
 
             <dl className="cine-stagger mt-16 grid grid-cols-2 gap-x-8 gap-y-10 border-t border-cream/10 pt-10 lg:grid-cols-4">
@@ -155,6 +165,10 @@ export default async function TestPage() {
               <Figure value={<CountUp to={2} />} label="ani în Meta" />
               <Figure value={<CountUp to={6} suffix="+" />} label="ani în web și marketing" />
             </dl>
+
+            <div className="cine-reveal mt-12">
+              <ActLink href="/despre">Povestea completă și CV-ul</ActLink>
+            </div>
           </div>
         </div>
       </section>
@@ -163,37 +177,70 @@ export default async function TestPage() {
       <section className="relative border-t border-cream/10">
         <div className="mx-auto max-w-6xl px-5 pt-24 sm:px-8">
           <ActMark n="03" label="Munca" />
-          <h2 className="cine-focus mt-8 max-w-2xl font-display text-[clamp(1.8rem,3.6vw,3rem)] leading-tight text-cream text-balance">
-            La fiecare, a fost tot proiectul
-          </h2>
+          <div className="flex flex-wrap items-end justify-between gap-6">
+            <h2 className="cine-focus mt-8 max-w-2xl font-display text-[clamp(1.8rem,3.6vw,3rem)] leading-tight text-cream text-balance">
+              La fiecare, eu am fost tot proiectul
+            </h2>
+            <ActLink href="/portofoliu">
+              Toate cele {projects.length} proiecte
+            </ActLink>
+          </div>
         </div>
 
         <HorizontalRail>
-          {featured.map((p) => (
-            <article
+          {featured.map((p, i) => (
+            <a
               key={p.slug}
-              className="w-[78vw] shrink-0 sm:w-[42vw] lg:w-[28vw]"
+              href={p.url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="group w-[78vw] shrink-0 sm:w-[46vw] lg:w-[32vw]"
             >
-              <div className="relative aspect-[4/3] overflow-hidden rounded-xl border border-cream/10 bg-ink-soft">
-                <div
-                  aria-hidden
-                  className="absolute inset-0 bg-gradient-to-br from-gold/25 via-transparent to-transparent"
+              <div className="relative aspect-[16/10] overflow-hidden rounded-xl border border-cream/10 bg-ink-soft">
+                <Image
+                  src={`/portfolio/${p.slug}.webp`}
+                  alt={`${p.client} — ${p.tagline}`}
+                  width={1440}
+                  height={900}
+                  // The first two are in the opening frame of the act; the rest
+                  // only exist after the rail has travelled, so they can wait.
+                  priority={i < 2}
+                  loading={i < 2 ? undefined : "lazy"}
+                  sizes="(min-width: 1024px) 32vw, (min-width: 640px) 46vw, 78vw"
+                  className="size-full object-cover object-top transition-transform duration-700 ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:scale-[1.04]"
                 />
-                <ProjectGlyph name={p.icon} />
-                <div className="absolute inset-x-0 bottom-0 p-6">
-                  <span className="text-[0.65rem] uppercase tracking-[0.2em] text-gold-light/80">
-                    {p.category}
-                  </span>
-                  <h3 className="mt-2 font-display text-2xl leading-tight text-cream">
-                    {p.client}
-                  </h3>
-                  <p className="mt-1 text-xs text-cream/50">{p.tagline}</p>
-                </div>
+
+                {/* The generated cover already carries the client wordmark and
+                    tagline, so nothing is overlaid on it — an earlier version
+                    repeated the name in a caption sitting directly on top of the
+                    artwork's own type. Only the category pill and the open
+                    affordance live on the image. */}
+                <span className="absolute left-4 top-4 rounded-full bg-ink/70 px-3 py-1 text-[0.65rem] font-medium uppercase tracking-[0.15em] text-gold-light backdrop-blur-sm">
+                  {p.category}
+                </span>
+
+                <span
+                  aria-hidden
+                  className="absolute right-4 top-4 flex size-9 translate-y-1 items-center justify-center rounded-full bg-cream text-ink opacity-0 transition-all duration-300 group-hover:translate-y-0 group-hover:opacity-100"
+                >
+                  <ArrowUpRight className="size-4" strokeWidth={1.5} />
+                </span>
               </div>
-              <p className="mt-4 line-clamp-3 text-sm leading-relaxed text-cream/45 text-pretty">
+
+              <div className="mt-5 flex items-baseline justify-between gap-3">
+                <h3 className="font-display text-xl text-cream transition-colors duration-300 group-hover:text-gold-light">
+                  {p.client}
+                  <span className="sr-only"> (se deschide în tab nou)</span>
+                </h3>
+                <span className="tabular shrink-0 text-xs text-cream/35">
+                  {p.year}
+                </span>
+              </div>
+
+              <p className="mt-3 line-clamp-3 text-sm leading-relaxed text-cream/45 text-pretty">
                 {p.description}
               </p>
-            </article>
+            </a>
           ))}
         </HorizontalRail>
       </section>
@@ -205,34 +252,41 @@ export default async function TestPage() {
           <div className="relative mx-auto w-full max-w-6xl px-5 sm:px-8">
             <ActMark n="04" label="Metoda" />
             <h2 className="cine-focus mt-8 max-w-3xl font-display text-[clamp(1.8rem,3.6vw,3rem)] leading-tight text-cream text-balance">
-              Alege unealta după problemă, nu invers
+              Aleg unealta după problemă, nu invers
             </h2>
 
+            {/* Each row goes to its own service page — the act is the index. */}
             <ol className="cine-stagger mt-14 border-t border-cream/10">
               {services.map((s, i) => (
-                <li
-                  key={s.slug}
-                  className="group grid grid-cols-[auto_1fr_auto] items-center gap-x-5 border-b border-cream/10 py-6 sm:gap-x-10"
-                >
-                  <span className="tabular font-display text-lg text-gold-light/50">
-                    {String(i + 1).padStart(2, "0")}
-                  </span>
-                  <div className="min-w-0">
-                    <h3 className="font-display text-xl text-cream sm:text-2xl">
-                      {s.title}
-                    </h3>
-                    <p className="mt-1 hidden max-w-xl text-sm leading-relaxed text-cream/40 sm:block">
-                      {s.summary}
-                    </p>
-                  </div>
-                  <ArrowUpRight
-                    className="size-5 text-gold-light/40 transition-transform duration-300 group-hover:-translate-y-0.5 group-hover:translate-x-0.5 group-hover:text-gold-light"
-                    strokeWidth={1.25}
-                    aria-hidden
-                  />
+                <li key={s.slug}>
+                  <Link
+                    href={`/servicii/${s.slug}`}
+                    className="group grid grid-cols-[auto_1fr_auto] items-center gap-x-5 border-b border-cream/10 py-6 transition-colors duration-300 hover:bg-cream/[0.03] sm:gap-x-10"
+                  >
+                    <span className="tabular font-display text-lg text-gold-light/50">
+                      {String(i + 1).padStart(2, "0")}
+                    </span>
+                    <div className="min-w-0">
+                      <h3 className="font-display text-xl text-cream sm:text-2xl">
+                        {s.title}
+                      </h3>
+                      <p className="mt-1 hidden max-w-xl text-sm leading-relaxed text-cream/40 sm:block">
+                        {s.summary}
+                      </p>
+                    </div>
+                    <ArrowUpRight
+                      className="size-5 text-gold-light/40 transition-transform duration-300 group-hover:-translate-y-0.5 group-hover:translate-x-0.5 group-hover:text-gold-light"
+                      strokeWidth={1.25}
+                      aria-hidden
+                    />
+                  </Link>
                 </li>
               ))}
             </ol>
+
+            <div className="cine-reveal mt-10">
+              <ActLink href="/servicii">Vezi toate serviciile</ActLink>
+            </div>
           </div>
         </div>
       </section>
@@ -265,10 +319,10 @@ export default async function TestPage() {
 
                   <h2 className="mt-9 font-display text-[clamp(1.7rem,3.2vw,2.7rem)] leading-tight text-cream text-balance">
                     <span className="cine-line">
-                      <span>Își testează metoda</span>
+                      <span>Îmi testez metoda</span>
                     </span>
                     <span className="cine-line text-gold-light">
-                      <span>pe banii lui.</span>
+                      <span>pe banii mei.</span>
                     </span>
                   </h2>
 
@@ -314,11 +368,14 @@ export default async function TestPage() {
                     ))}
                   </dl>
 
-                  {parcly.url && (
-                    <p className="cine-reveal mt-10 text-xs text-cream/35">
+                  <div className="cine-reveal mt-10 flex flex-wrap items-center gap-x-6 gap-y-3">
+                    <ActLink href="/proiecte-personale">
+                      Despre proiectele mele
+                    </ActLink>
+                    <span className="text-xs text-cream/35">
                       {parcly.status} · {parcly.kicker}
-                    </p>
-                  )}
+                    </span>
+                  </div>
                 </div>
               </div>
             </div>
@@ -339,7 +396,7 @@ export default async function TestPage() {
 
           <h2 className="mt-10 max-w-4xl font-display text-[clamp(2rem,5.5vw,4.5rem)] leading-[1.05] text-cream text-balance">
             <span className="cine-line">
-              <span>Acum lucrează</span>
+              <span>Acum lucrez</span>
             </span>
             <span className="cine-line text-gold-light">
               <span>pentru firma ta.</span>
@@ -347,9 +404,9 @@ export default async function TestPage() {
           </h2>
 
           <p className="cine-reveal mt-10 max-w-xl text-lead leading-relaxed text-cream/60 text-pretty">
-            Primul pas e un audit gratuit de 30 de minute. Îți spune exact unde
-            pierzi clienți și ce ar repara întâi — lista rămâne a ta, indiferent
-            dacă lucrați împreună.
+            Primul pas e un audit gratuit de 30 de minute. Îți spun exact unde
+            pierzi clienți și ce aș repara întâi — lista rămâne a ta, indiferent
+            dacă lucrăm împreună.
           </p>
 
           <div className="cine-reveal mt-12 flex flex-wrap items-center gap-6">
@@ -371,7 +428,36 @@ export default async function TestPage() {
             </Link>
           </div>
 
-          <p className="mt-20 border-t border-cream/10 pt-6 text-xs text-cream/30">
+          {/* Full index. A story this linear has to end somewhere other than a
+              dead end — every page of the site is one click from here. */}
+          <nav
+            aria-label="Restul site-ului"
+            className="cine-stagger mt-20 grid gap-x-10 gap-y-5 border-t border-cream/10 pt-10 sm:grid-cols-2 lg:grid-cols-3"
+          >
+            {siteIndex.map((item) => (
+              <Link
+                key={item.href}
+                href={item.href}
+                className="group flex items-start justify-between gap-4 border-b border-cream/10 pb-4 transition-colors duration-300 hover:border-gold-light/40"
+              >
+                <span>
+                  <span className="block font-display text-lg text-cream transition-colors duration-300 group-hover:text-gold-light">
+                    {item.label}
+                  </span>
+                  <span className="mt-1 block text-xs leading-snug text-cream/40">
+                    {item.note}
+                  </span>
+                </span>
+                <ArrowUpRight
+                  className="mt-1 size-4 shrink-0 text-gold-light/40 transition-transform duration-300 group-hover:-translate-y-0.5 group-hover:translate-x-0.5 group-hover:text-gold-light"
+                  strokeWidth={1.25}
+                  aria-hidden
+                />
+              </Link>
+            ))}
+          </nav>
+
+          <p className="mt-12 text-xs text-cream/30">
             Pagină de test — {acts.length} acte. Versiunea publică a site-ului
             rămâne pe{" "}
             <Link href="/" className="underline underline-offset-4 hover:text-cream/60">
@@ -382,6 +468,29 @@ export default async function TestPage() {
         </div>
       </section>
     </div>
+  );
+}
+
+/** Quiet inline CTA out of an act — a rule that fills gold on hover. */
+function ActLink({ href, children }: { href: string; children: React.ReactNode }) {
+  return (
+    <Link
+      href={href}
+      className="group inline-flex min-h-11 items-center gap-2 text-sm text-cream/70 transition-colors duration-300 hover:text-gold-light"
+    >
+      <span className="relative">
+        {children}
+        <span
+          aria-hidden
+          className="absolute -bottom-1 left-0 h-px w-full origin-left scale-x-0 bg-gold-light transition-transform duration-300 group-hover:scale-x-100"
+        />
+      </span>
+      <ArrowUpRight
+        className="size-4 transition-transform duration-300 group-hover:-translate-y-0.5 group-hover:translate-x-0.5"
+        strokeWidth={1.5}
+        aria-hidden
+      />
+    </Link>
   );
 }
 
@@ -432,30 +541,6 @@ function ActMark({ n, label }: { n: string; label: string }) {
         {label}
       </span>
     </div>
-  );
-}
-
-/**
- * The project's own lucide glyph, watermarked into the card.
- *
- * Project icons are stored kebab-case ("building-2") because they were written
- * for lucide-static, while lucide-react exports PascalCase — hence the
- * conversion. An unknown name renders nothing rather than crashing the rail.
- */
-function ProjectGlyph({ name }: { name: string }) {
-  const pascal = name
-    .split("-")
-    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
-    .join("");
-  const Glyph = (Lucide as unknown as Record<string, Lucide.LucideIcon>)[pascal];
-  if (!Glyph) return null;
-
-  return (
-    <Glyph
-      className="absolute right-5 top-5 size-8 text-gold-light/25"
-      strokeWidth={1}
-      aria-hidden
-    />
   );
 }
 
