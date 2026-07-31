@@ -32,6 +32,9 @@ yarn-error.log*
 
 # env files (can opt-in for committing if needed)
 .env*
+# ...except the template. Without this exception the example was silently
+# ignored and never reached the repo, so the server had nothing to copy.
+!.env.example
 
 # vercel
 .vercel
