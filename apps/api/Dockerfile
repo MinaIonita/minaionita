@@ -46,11 +46,13 @@ ENV NODE_ENV=production
 ENV HOST=0.0.0.0
 ENV PORT=4000
 
+# npm workspaces ridică dependințele la rădăcină, inclusiv clientul Prisma
+# generat în node_modules/.prisma — nu există un apps/api/node_modules separat.
 COPY --from=builder /app/node_modules ./node_modules
 COPY --from=builder /app/apps/api/dist ./apps/api/dist
-COPY --from=builder /app/apps/api/node_modules ./apps/api/node_modules
 COPY --from=builder /app/apps/api/prisma ./apps/api/prisma
 COPY --from=builder /app/apps/api/package.json ./apps/api/
+COPY --from=builder /app/package.json ./package.json
 
 # Rulează ca utilizator neprivilegiat; imaginea node îl are deja creat.
 USER node
