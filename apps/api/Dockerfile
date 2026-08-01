@@ -54,6 +54,12 @@ COPY --from=builder /app/apps/api/prisma ./apps/api/prisma
 COPY --from=builder /app/apps/api/package.json ./apps/api/
 COPY --from=builder /app/package.json ./package.json
 
+# Seed-ul citește conținutul direct din sursa site-ului, ca baza să pornească
+# identică cu ce randează paginile. Fără fișierele astea în imaginea de runtime,
+# `prisma db seed` eșuează cu MODULE_NOT_FOUND și panoul de administrare rămâne
+# gol — site-ul arată corect doar pentru că are fallback static.
+COPY --from=builder /app/apps/web/src/lib ./apps/web/src/lib
+
 # Rulează ca utilizator neprivilegiat; imaginea node îl are deja creat.
 USER node
 

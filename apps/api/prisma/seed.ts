@@ -1,5 +1,6 @@
 import "dotenv/config";
 import { PrismaBetterSqlite3 } from "@prisma/adapter-better-sqlite3";
+import { PrismaMariaDb } from "@prisma/adapter-mariadb";
 import { PrismaClient, Status } from "@prisma/client";
 import * as bcrypt from "bcryptjs";
 // One source of truth: seed straight from the front's content so the DB starts
@@ -12,8 +13,17 @@ import {
 } from "../../web/src/lib/content";
 import { primaryCta, site } from "../../web/src/lib/site";
 
+// Același adaptor ales dinamic ca în PrismaService: hardcodat pe SQLite, seed-ul
+// refuza să ruleze pe baza de producție cu „adapter based on sqlite is not
+// compatible with provider mysql".
+const dbUrl = process.env.DATABASE_URL;
+if (!dbUrl) throw new Error("DATABASE_URL is not set");
+const isSqlite = dbUrl.startsWith("file:") || dbUrl.startsWith("sqlite:");
+
 const prisma = new PrismaClient({
-  adapter: new PrismaBetterSqlite3({ url: process.env.DATABASE_URL! }),
+  adapter: isSqlite
+    ? new PrismaBetterSqlite3({ url: dbUrl })
+    : new PrismaMariaDb(dbUrl),
 });
 
 async function main() {
