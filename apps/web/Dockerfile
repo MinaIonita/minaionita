@@ -55,6 +55,14 @@ COPY --from=builder /app/apps/web/.next/standalone ./
 COPY --from=builder /app/apps/web/public ./apps/web/public
 COPY --from=builder /app/apps/web/.next/static ./apps/web/.next/static
 
+# Optimizatorul de imagini scrie versiunile redimensionate în .next/cache la
+# prima cerere. Fișierele copiate mai sus aparțin lui root, iar procesul rulează
+# ca `node` — fără directorul ăsta preexistent și deținut corect, fiecare
+# imagine loga „EACCES: permission denied, mkdir" și se re-optimiza la fiecare
+# cerere, în loc să fie servită din cache.
+RUN mkdir -p /app/apps/web/.next/cache \
+    && chown -R node:node /app/apps/web/.next
+
 USER node
 
 EXPOSE 3000
